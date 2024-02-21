@@ -28,10 +28,18 @@ module.exports = class Email {
     await this.newTransporter().sendMail(mailOptions);
   }
 
-  async sendOTP(otp) {
+  async sendOTPNewUser(otp) {
     await this.send(
-      "Welcome to homeNet",
+      "[homeNet]Welcome to homeNet",
       `Welcome to our application, please verify your account by this OTP: ${otp}, this OTP will be expired after 15 minutes`
     );
+  }
+
+  async sendOTPResetPassword(otp, user) {
+    await this.send(
+      "[homeNet] Renew password request",
+      `Hi ${user.name}.\nWe have received your renew password request from email: ${user.email}. \nPlease confirm your request by using this OTP: ${otp}`
+    )
+
   }
 };
