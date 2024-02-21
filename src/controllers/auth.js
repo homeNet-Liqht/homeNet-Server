@@ -6,6 +6,7 @@ const otpGenerated = require("../utils/otp");
 const helpers = require("../helpers/jwt");
 const authController = {
   signUp: async (req, res) => {
+    console.log(req.body);
     try {
       const isExistingEmail = await User.findOne({
         email: req.body.email,
@@ -83,11 +84,9 @@ const authController = {
       if (!validPassword) return res.status(400).json("Wrong password!");
 
       if (user && validPassword) {
-
         const accessToken = helpers.generateAccessToken(user);
         const refreshToken = helpers.generateRefreshToken(user);
-        return res.status(200).json(user);
-
+        console.log(accessToken);
         const updatedUser = await User.updateOne(
           { id: user._id }, 
           { $set: { refresh_token: refreshToken }}

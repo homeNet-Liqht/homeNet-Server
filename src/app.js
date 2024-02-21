@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 connect();
 
-// Middleware
+
 app.use(morgan());
 app.use(cors());
 app.use(cookieParser());
@@ -19,7 +19,7 @@ app.use(helmet());
 app.use(express.json());
 
 
-// Routes
+
 route(app);
 
 const PORT = process.env.PORT || 8000;

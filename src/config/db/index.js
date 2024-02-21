@@ -4,7 +4,7 @@ const connect = async () => {
   try {
     await mongoose
       .connect(
-        `mongodb+srv://homenet:${process.env.DB_PASSWORD}@cluster0.y09ouwc.mongodb.net/homenet`
+        `mongodb+srv://homenet:${process.env.DB_PASSWORD}@cluster0.yotvkil.mongodb.net/homenet`
       )
       .then(() => {
         console.log("Connect to database successful");
