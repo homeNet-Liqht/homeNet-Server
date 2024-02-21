@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "homenet backend",
   "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/app.js"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
