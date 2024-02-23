@@ -2,15 +2,15 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const email = require("../helpers/email");
 const otpGenerated = require("../utils/otp");
 const helpers = require("../helpers/jwt");
+const Email = require("../helpers/email");
 
 
 const authController = {
 
   signUp: async (req, res) => {
-    console.log(req.body);
+
     try {
       const isExistingEmail = await User.findOne({
         email: req.body.email,
@@ -39,7 +39,7 @@ const authController = {
         otp_exp: Date.now() + (15 * 60 * 1000)
       });
 
-      await new email(newUser).sendOTPNewUser(newOtp);
+      await new Email(newUser).sendOTPNewUser(newOtp, newUser);
 
       return res.status(201).json("User registered successfully");
     } catch (err) {
@@ -47,40 +47,24 @@ const authController = {
     }
   },
 
-  otpConfirmation: async (req, res) => {
+  validAccount: async (req, res) => {
     try {
-      const userId = req.params.uid;
-      const clientOtp = req.body.otp;
+      const userId = req.userId;
 
-      const user = await User.findOne({
-        id: userId
-      });
-
-      if (!user) {
-        return res.status(404).json("User not found");
-      }
-
-      if (user.otp_exp < Date.now()) {
-        return res.status(403).json("Your token is expired");
-      }
-
-      if (user.otp != clientOtp) {
-        return res.status(403).json("This OTP is not valid");
-      }
-
-      const active_user = await User.updateOne({
-        id: userId
+      const active_user = await User.findOneAndUpdate({
+        _id: userId
       }, {
         $set: {
           is_active: true,
           otp: "",
           otp_exp: ""
         }
-      });
-      if (active_user) res.status(201).json("Your account is now active");
-    } catch (error) {
-      return res.status(500).json(error);
+      }, );
+      if (active_user) res.status(201).json("Your account is now ready to use");
+    } catch (err) {
+      res.status(500).json(err)
     }
+
   },
 
   signIn: async (req, res) => {
@@ -88,7 +72,7 @@ const authController = {
       const user = await User.findOne({
         email: req.body.email
       });
-      if (!user) return res.status(400).json("Cannot find this email!");
+      if (!user) return res.status(404).json("Cannot find this email!");
 
       const validPassword = await bcrypt.compare(
         req.body.password,
@@ -96,6 +80,8 @@ const authController = {
       );
 
       if (!validPassword) return res.status(400).json("Wrong password!");
+
+      if (!user.is_active) return res.status(403).json("This account isn't verify yet, please verify it before access to our application")
 
       if (user && validPassword) {
         const accessToken = helpers.generateAccessToken(user);
@@ -120,6 +106,12 @@ const authController = {
         const {
           password,
           refresh_token,
+          otp,
+          otp_exp,
+          resetPasswordExpires,
+          resetPasswordToken,
+          created_at,
+          updated_at,
           ...others
         } = user._doc;
         return res.status(200).json({
@@ -146,45 +138,48 @@ const authController = {
   },
 
   requestRefreshToken: async (req, res) => {
+    try {
+      const refreshToken = req.cookies.refreshtoken;
+      console.log(refreshToken);
+      if (!refreshToken) return res.status(402).json("You are not authenticated")
 
-    const refreshToken = req.cookies.refreshtoken;
-    console.log(refreshToken);
-    if (!refreshToken) return res.status(401).json("You are not authenticated")
-
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, async (err, user) => {
-      if (err) console.log(err);
-      const userDb = await User.findById(user.id);
-      if (!userDb) {
-        return res.status(401).json("User not found");
-      }
-      const newAccessToken = helpers.generateAccessToken(userDb)
-      const newRefreshToken = helpers.generateRefreshToken(userDb);
-
-      const updateRefreshToken = await User.findOneAndUpdate({
-        _id: user.userId
-      }, {
-        $set: {
-          refresh_token: newRefreshToken
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, async (err, user) => {
+        if (err) console.log(err);
+        const userDb = await User.findById(user.id);
+        if (!userDb) {
+          return res.status(401).json("User not found");
         }
-      }, {
-        new: true
-      });
-      res.cookie("refreshtoken", newRefreshToken, {
-        httpOnly: true,
-        secure: false,
-        path: "/",
-        sameSite: "strict"
-      });
-      res.cookie('accesstoken', newAccessToken, {
-        secure: false,
-        path: "/",
-        sameSite: "strict"
-      })
+        const newAccessToken = helpers.generateAccessToken(userDb)
+        const newRefreshToken = helpers.generateRefreshToken(userDb);
 
-      res.status(200).json({
-        accessToken: newAccessToken
-      });
-    })
+        const updateRefreshToken = await User.findOneAndUpdate({
+          _id: user.userId
+        }, {
+          $set: {
+            refresh_token: newRefreshToken
+          }
+        }, {
+          new: true
+        });
+        res.cookie("refreshtoken", newRefreshToken, {
+          httpOnly: true,
+          secure: false,
+          path: "/",
+          sameSite: "strict"
+        });
+        res.cookie('accesstoken', newAccessToken, {
+          secure: false,
+          path: "/",
+          sameSite: "strict"
+        })
+
+        res.status(200).json({
+
+        });
+      })
+    } catch (error) {
+      res.status(500).json(error)
+    }
   },
 
   forgotPassword: async (req, res) => {
@@ -208,11 +203,44 @@ const authController = {
 
       if (!updatedUser) return res.status(400).json("Something went wrong, try again later!")
 
-      await new email(updatedUser).sendOTPResetPassword(resetOtp, updatedUser);
+      await new Email(updatedUser).sendOTPResetPassword(resetOtp, updatedUser);
 
       return res.status(200).json("The reset OTP has been sent to user")
     } catch (error) {
       return res.status(500).send(error)
+    }
+  },
+
+  resendOtpNewUser: async (req, res) => {
+    try {
+
+
+      const user = await User.findOneAndUpdate({
+        email: req.body.email
+      });
+      if (!user) return res.status(404).json("Cannot find this email!");
+
+      if (user.is_active) return res.status(403).json("This account is already verify!");
+
+      newOtp = otpGenerated();
+
+      const updatedUser = await User.findOneAndUpdate({
+        email: req.body.email
+      }, {
+        $set: {
+          otp: newOtp,
+          otp_exp: Date.now() + (15 * 60 * 1000)
+        }
+      }, {
+        new: true
+      });
+
+      await new Email(updatedUser).reSendOtpNewUser(newOtp, updatedUser)
+
+
+      res.status(200).json("Your new OTP has been sent");
+    } catch (error) {
+      res.status(500).json(error);
     }
   }
 };

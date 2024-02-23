@@ -1,10 +1,9 @@
-const authRoute = require('./authRoute')
+const authRoute = require('./authRoute');
+const userRoute = require('./userRoute');
 
 const route = (app) => {
     app.use('/auth', authRoute);
-    app.use('/', async (req, res) => {
-        res.send("Hello World")
-    });
+    app.use('/user', userRoute);
 }
 
 module.exports = route
