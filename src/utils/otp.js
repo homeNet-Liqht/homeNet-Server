@@ -3,6 +3,4 @@ const otpGenerated = () => {
   return otp.toString();
 }
 
-module.exports = {
-  otpGenerated
-}
+module.exports = { otpGenerated }
