@@ -2,7 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const otpGenerated = require("../utils/otp");
+const {otpGenerated} = require("../utils/otp");
 const helpers = require("../helpers/jwt");
 const Email = require("../helpers/email");
 
@@ -28,6 +28,7 @@ const authController = {
       const hashedPassword = await bcrypt.hash(password, salt);
 
       const newOtp = otpGenerated();
+      console.log(newOtp);
 
       const newUser = await User.create({
         email: req.body.email,
@@ -37,12 +38,11 @@ const authController = {
         otp: newOtp,
         otp_exp: Date.now() + (15 * 60 * 1000)
       });
-
       await new Email(newUser).sendOTPNewUser(newOtp, newUser);
 
       return res.status(201).json("User registered successfully");
     } catch (err) {
-      return res.status(500).json(err);
+      return res.status(500).json(err.message);
     }
   },
 
