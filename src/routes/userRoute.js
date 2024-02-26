@@ -8,7 +8,7 @@ const { checkAuthorization } = require("../middlewares/checkAuthor");
 
 const userRoute = express.Router();
 
-userRoute.get("current-user/:uid", userController.currentUser);
+userRoute.get("/current-user/:uid", userController.currentUser);
 userRoute.put("/update-info/:uid",checkAuthorization, userController.editInformation);
 userRoute.post("/reset", otpConfirmation, userController.updatePassword)
 

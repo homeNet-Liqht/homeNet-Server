@@ -34,7 +34,6 @@ const authController = {
         password: hashedPassword,
         name: req.body.name,
         phone: req.body.phone,
-        birthday: req.body.birthday,
         otp: newOtp,
         otp_exp: Date.now() + (15 * 60 * 1000)
       });
