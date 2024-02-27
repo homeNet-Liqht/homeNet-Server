@@ -20,9 +20,7 @@ const authController = {
         return res.status(403).json("This email is already signed up");
 
       const password = req.body.password;
-      const confirmPassword = req.body.confirmPassword;
-      if (password != confirmPassword)
-        return res.status(400).json("Passwords do not match");
+
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -34,7 +32,6 @@ const authController = {
         email: req.body.email,
         password: hashedPassword,
         name: req.body.name,
-        phone: req.body.phone,
         otp: newOtp,
         otp_exp: Date.now() + (15 * 60 * 1000)
       });
