@@ -2,7 +2,9 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const {otpGenerated} = require("../utils/otp");
+const {
+  otpGenerated
+} = require("../utils/otp");
 const helpers = require("../helpers/jwt");
 const Email = require("../helpers/email");
 
@@ -17,7 +19,10 @@ const authController = {
       });
 
       if (isExistingEmail)
-        return res.status(403).json("This email is already signed up");
+        return res.status(403).json({
+          code: 403,
+          data: "This email is already signed up"
+        });
 
       const password = req.body.password;
 
@@ -37,9 +42,15 @@ const authController = {
       });
       await new Email(newUser).sendOTPNewUser(newOtp, newUser);
 
-      return res.status(201).json("User registered successfully");
+      return res.status(201).json({
+        code: 201,
+        data: "User registered successfully"
+      });
     } catch (err) {
-      return res.status(500).json(err.message);
+      return res.status(500).json({
+        code: 500,
+        data: err.message
+      });
     }
   },
 
@@ -56,9 +67,15 @@ const authController = {
           otp_exp: ""
         }
       }, );
-      if (active_user) res.status(201).json("Your account is now ready to use");
+      if (active_user) res.status(201).json({
+        code: 201,
+        data: "Your account is now ready to use"
+      });
     } catch (err) {
-      res.status(500).json(err)
+      res.status(500).json({
+        code: 500,
+        data: err.message
+      })
     }
 
   },
@@ -111,11 +128,15 @@ const authController = {
           ...others
         } = user._doc;
         return res.status(200).json({
+          code: 200,
           ...others,
         });
       }
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({
+        code: 500,
+        data: error.message
+      });
     }
   },
 
@@ -124,11 +145,15 @@ const authController = {
       res.clearCookie('accesstoken');
       res.clearCookie('refreshtoken');
       res.status(200).json({
-        message: 'Logout successful'
+
+        code: 200,
+        data: 'Logout successful'
+
       });
     } catch (error) {
       return res.status(500).json({
-        message: 'Internal Server Error'
+        code: 500,
+        data: error.message
       });
     }
   },
@@ -170,11 +195,15 @@ const authController = {
         })
 
         res.status(200).json({
-
+          code: 200,
+          data: "Sign in successfully"
         });
       })
     } catch (error) {
-      res.status(500).json(error)
+      res.status(500).json({
+        code: 500,
+        data: error.message
+      })
     }
   },
 
@@ -201,9 +230,15 @@ const authController = {
 
       await new Email(updatedUser).sendOTPResetPassword(resetOtp, updatedUser);
 
-      return res.status(200).json("The reset OTP has been sent to user")
+      return res.status(200).json({
+        code: 200,
+        data: "Update password successfully"
+      })
     } catch (error) {
-      return res.status(500).send(error)
+      return res.status(500).send({
+        code: 500,
+        data: err.message
+      })
     }
   },
 
@@ -234,9 +269,17 @@ const authController = {
       await new Email(updatedUser).reSendOtpNewUser(newOtp, updatedUser)
 
 
-      res.status(200).json("Your new OTP has been sent");
+      res.status(200).json({
+        code: 200,
+        data: "OTP resent"
+      });
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({
+
+        code: 500,
+        data: error.message
+
+      });
     }
   }
 };
