@@ -17,11 +17,12 @@ const userSchema = new Schema({
     type: String,
   },
   birthday: {
-    type: Date
+    type: Date,
+    default: Date.now()
   },
-
   phone: {
     type: String,
+    default: null
   },
   otp: {
     type: String,

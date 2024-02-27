@@ -6,7 +6,10 @@ const userController = {
     currentUser: async (req, res) => {
         try {
             const user = await User.findById(req.params.uid);
-            if (!user) res.status(404).json("Cannot find this user");
+            if (!user) res.status(404).json({
+                code: 404,
+                data: "Cannot find this user"
+            });
 
             const {
                 password,
@@ -20,11 +23,15 @@ const userController = {
                 ...others
             } = user._doc;
             return res.status(200).json({
+                code: 200,
                 ...others,
             });
 
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).json({
+                code: 500,
+                data: error.message
+            })
         }
     },
 
@@ -49,12 +56,16 @@ const userController = {
                 new: true
             })
 
-            res.status(201).json("Your new password is ready to use");
+            res.status(201).json({
+                code: 200,
+                data: "Update password successfully"
+            });
 
         } catch (error) {
             console.error("Error updating password:", error);
             res.status(500).json({
-                error: "Internal server error"
+                code: 500,
+                data: error.message
             });
         }
 
@@ -69,8 +80,11 @@ const userController = {
             } = req.body;
 
             const user = await User.findById(req.params.uid);
-            if (!user) return res.status(404).json("Cannot find this user!");
-            
+            if (!user) return res.status(404).json({
+                code: 404,
+                data: "Cannot find this user!"
+            });
+
             const updatedUser = await User.findByIdAndUpdate(
                 req.params.uid, {
                     $set: {
@@ -78,15 +92,20 @@ const userController = {
                         birthday,
                         phone
                     }
-                },
-                {
+                }, {
                     new: true
                 }
             );
 
-            res.status(201).json(updatedUser)
+            res.status(201).json({
+                code: 201,
+                data: updatedUser
+            })
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).json({
+                code: 500,
+                data: error.message
+            })
         }
     }
 }
