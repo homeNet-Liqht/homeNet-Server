@@ -13,12 +13,10 @@ connect();
 
 
 app.use(morgan());
-app.use(cors(
-  {
-    credentials: true,
-    origin: "http://52.62.46.94:8000/"
-  }
-));
+app.use(cors({
+  credentials: true,
+  origin: "*"
+}));
 app.use(cookieParser());
 app.use(helmet());
 app.use(express.json());

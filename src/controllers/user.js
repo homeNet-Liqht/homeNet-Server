@@ -33,11 +33,6 @@ const userController = {
         try {
 
             const password = req.body.password;
-            const confirmPassword = req.body.confirmPassword;
-            if (password != confirmPassword)
-                return res.status(400).json({
-                    error: "Passwords do not match"
-                });
 
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);

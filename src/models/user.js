@@ -16,6 +16,10 @@ const userSchema = new Schema({
   name: {
     type: String,
   },
+  birthday: {
+    type: Date
+  },
+
   phone: {
     type: String,
   },
@@ -26,10 +30,22 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now() + 15 * 60 * 1000,
   },
-  is_active: { type: Boolean, default: false },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-  refresh_token: { type: String, default: "" },
+  is_active: {
+    type: Boolean,
+    default: false
+  },
+  created_at: {
+    type: Date,
+    default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
+  },
+  refresh_token: {
+    type: String,
+    default: ""
+  },
   resetPasswordToken: {
     type: String,
     default: null,
