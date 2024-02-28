@@ -44,7 +44,7 @@ const authController = {
 
       return res.status(201).json({
         code: 201,
-        data: "User registered successfully"
+        data: newUser.email
       });
     } catch (err) {
       return res.status(500).json({
@@ -232,7 +232,7 @@ const authController = {
 
       return res.status(200).json({
         code: 200,
-        data: "Update password successfully"
+        data: "The reset OTP has been sent to user"
       })
     } catch (error) {
       return res.status(500).send({
@@ -246,14 +246,21 @@ const authController = {
     try {
 
 
-      const user = await User.findOneAndUpdate({
+      const user = await User.find({
         email: req.body.email
       });
-      if (!user) return res.status(404).json("Cannot find this email!");
+      if (!user) return res.status(404).json({
+        code: 404,
+        error: "Cannot find this email"
+      });
 
-      if (user.is_active) return res.status(403).json("This account is already verify!");
+      if (user.is_active) return res.status(403).json({
+        code: 403,
+        error: "This user is already active"
+      });
 
       newOtp = otpGenerated();
+      console.log(newOtp);
 
       const updatedUser = await User.findOneAndUpdate({
         email: req.body.email
@@ -262,18 +269,22 @@ const authController = {
           otp: newOtp,
           otp_exp: Date.now() + (15 * 60 * 1000)
         }
-      }, {
-        new: true
       });
-
       await new Email(updatedUser).reSendOtpNewUser(newOtp, updatedUser)
 
 
       res.status(200).json({
         code: 200,
-        data: "OTP resent"
+        data: "The reset OTP has been sent to user"
       });
     } catch (error) {
+      if (error.code === 11000) {
+        
+        return res.status(400).json({
+          code: 400,
+          error: "Duplicate email address"
+        });
+      } 
       res.status(500).json({
 
         code: 500,
