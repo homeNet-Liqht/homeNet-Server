@@ -246,7 +246,7 @@ const authController = {
     try {
 
 
-      const user = await User.find({
+      const user = await User.findOne({
         email: req.body.email
       });
       if (!user) return res.status(404).json({
@@ -258,9 +258,9 @@ const authController = {
         code: 403,
         error: "This user is already active"
       });
-
+      console.log(user);
+      console.log(user.is_active);
       newOtp = otpGenerated();
-      console.log(newOtp);
 
       const updatedUser = await User.findOneAndUpdate({
         email: req.body.email
@@ -270,6 +270,7 @@ const authController = {
           otp_exp: Date.now() + (15 * 60 * 1000)
         }
       });
+
       await new Email(updatedUser).reSendOtpNewUser(newOtp, updatedUser)
 
 
