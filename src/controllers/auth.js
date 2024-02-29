@@ -86,8 +86,8 @@ const authController = {
           code: 404,
           data: "Cannot find this user!"
         })
-        if (forgot_user) return res.status(301).json({
-          code: 301,
+        if (forgot_user) return res.status(200).json({
+          code: 200,
           data: "You can change your password now!"
         })
       }
