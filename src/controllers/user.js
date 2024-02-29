@@ -39,13 +39,13 @@ const userController = {
 
         try {
 
-            const password = req.body.password;
+            const password = req.body.newPassword;
 
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
             const updatedPassword = await User.findOneAndUpdate({
-                _id: req.userId
+                email: req.body.email
             }, {
                 $set: {
                     password: hashedPassword,
@@ -55,7 +55,10 @@ const userController = {
             }, {
                 new: true
             })
-
+            if (!updatedPassword) return res.status(400).json({
+                code: 400,
+                data: "Something went wrong, try again!"
+            })
             res.status(201).json({
                 code: 200,
                 data: "Update password successfully"

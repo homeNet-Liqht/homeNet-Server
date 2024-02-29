@@ -1,8 +1,11 @@
 const User = require("../models/user");
+
+
+
 const otpConfirmation = async (req, res, next) => {
   try {
-    const user = await otpChecking(req.body.email);
-
+    const user = await otpChecking(req.body.email, req.body.type);
+    
     if (!user) return res.status(404).json({
       code: 404,
       data: "Cannot find this user"
@@ -27,7 +30,10 @@ const otpConfirmation = async (req, res, next) => {
       );
     }
 
-    req.userId = user.id;
+    req.user = {
+      userId: user.id,
+      type: req.body.type
+    };
     next();
 
   } catch (error) {
@@ -38,18 +44,23 @@ const otpConfirmation = async (req, res, next) => {
   }
 };
 
-const otpChecking = async (email) => {
+const otpChecking = async (email, type) => {
   try {
     const user = await User.findOne({
       email: email
     });
-
     if (!user) {
       throw new Error("User not found");
     }
+    if (type == "Signup") {
+      return {
+        id: user.id,
+        otp: user.otp,
+        otp_exp: user.otp_exp
+      };
+    }
 
-
-    if (user.resetPasswordToken) {
+    if (type == "ForgotPassword") {
       return {
         id: user.id,
         otp: user.resetPasswordToken,
@@ -57,13 +68,6 @@ const otpChecking = async (email) => {
       };
     }
 
-    if (user.otp) {
-      return {
-        id: user.id,
-        otp: user.otp,
-        otp_exp: user.otp_exp
-      };
-    }
 
   } catch (error) {
     throw new Error(error.message);

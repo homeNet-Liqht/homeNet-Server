@@ -56,21 +56,42 @@ const authController = {
 
   validAccount: async (req, res) => {
     try {
-      const userId = req.userId;
+      const userId = req.user.userId;
+      const otpType = req.user.type
+      if (otpType == "Signup") {
+        const active_user = await User.findOneAndUpdate({
+          _id: userId
+        }, {
+          $set: {
+            is_active: true,
+            otp: "",
+            otp_exp: ""
+          }
+        }, );
+        if (!active_user) return res.status(404).json({
+          code: 404,
+          data: "Cannot find this user!"
+        })
 
-      const active_user = await User.findOneAndUpdate({
-        _id: userId
-      }, {
-        $set: {
-          is_active: true,
-          otp: "",
-          otp_exp: ""
-        }
-      }, );
-      if (active_user) res.status(201).json({
-        code: 201,
-        data: "Your account is now ready to use"
-      });
+        if (active_user) return res.status(201).json({
+          code: 201,
+          data: "Your account is now ready to use"
+        });
+      }
+      if (otpType == "ForgotPassword") {
+        const forgot_user = await User.findById({
+          _id: userId
+        })
+        if (!forgot_user) return res.status(404).json({
+          code: 404,
+          data: "Cannot find this user!"
+        })
+        if (forgot_user) return res.status(301).json({
+          code: 301,
+          data: "You can change your password now!"
+        })
+      }
+
     } catch (err) {
       res.status(500).json({
         code: 500,
@@ -280,12 +301,12 @@ const authController = {
       });
     } catch (error) {
       if (error.code === 11000) {
-        
+
         return res.status(400).json({
           code: 400,
           error: "Duplicate email address"
         });
-      } 
+      }
       res.status(500).json({
 
         code: 500,
