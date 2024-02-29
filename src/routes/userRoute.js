@@ -11,7 +11,7 @@ const {
 
 const userRoute = express.Router();
 
-userRoute.get("/current-user/:uid", userController.currentUser);
+userRoute.get("/current-user", checkAuthentication, userController.currentUser);
 userRoute.put("/update-info/:uid", checkAuthentication, checkAuthorization, userController.editInformation);
 userRoute.post("/reset-password", userController.updatePassword)
 

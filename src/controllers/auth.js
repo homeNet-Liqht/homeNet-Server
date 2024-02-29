@@ -161,8 +161,15 @@ const authController = {
     }
   },
 
-  logOut: (req, res) => {
+  logOut: async (req, res) => {
     try {
+      const deleted_token = await User.findByIdAndUpdate(req.idDecoded , {$set: {
+        refresh_token: ""
+      }})
+      if (!deleted_token) return res.status(400).json({
+        code: 400,
+        data: "Something went wrong, try again later!"
+      })
       res.clearCookie('accesstoken');
       res.clearCookie('refreshtoken');
       res.status(200).json({

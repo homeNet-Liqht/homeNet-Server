@@ -5,7 +5,7 @@ const userController = {
 
     currentUser: async (req, res) => {
         try {
-            const user = await User.findById(req.params.uid);
+            const user = await User.findById(req.idDecoded);
             if (!user) res.status(404).json({
                 code: 404,
                 data: "Cannot find this user"

@@ -14,10 +14,9 @@ const checkAuthentication = async (req, res, next) => {
         if (!token) return res.status(404).json("Your token was not found");
 
         if (decoded.exp * 1000 < Date.now() ) return res.status(403).json("Your token was expired")
-        const user = await User.findById(decoded.id);
-        if (!user) return res.status(404).json("User was not found");
 
-        req.userData = user;
+
+        req.idDecoded = decoded.id;
         console.log("Token is still valid");
         next();
     } catch (error) {
