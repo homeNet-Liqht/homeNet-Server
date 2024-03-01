@@ -111,7 +111,7 @@ const userController = {
                 ...others
               } = updatedUser._doc;
               return res.status(201).json({
-                code: 200,
+                code: 201,
                 data: others
               });
 
