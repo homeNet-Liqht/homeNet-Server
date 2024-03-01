@@ -102,7 +102,7 @@ const userController = {
 
             res.status(201).json({
                 code: 201,
-                data: updatedUser
+                data: "Updated successful"
             })
         } catch (error) {
             res.status(500).json({
