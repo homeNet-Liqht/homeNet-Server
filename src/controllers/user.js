@@ -39,10 +39,10 @@ const userController = {
 
         try {
 
-            const password = req.body.newPassword;
+            const newPassword = req.body.newPassword;
 
             const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
 
             const updatedPassword = await User.findOneAndUpdate({
                 email: req.body.email
@@ -59,10 +59,21 @@ const userController = {
                 code: 400,
                 data: "Something went wrong, try again!"
             })
-            res.status(201).json({
-                code: 200,
-                data: "Update password successfully"
-            });
+            const {
+                password,
+                refresh_token,
+                otp,
+                otp_exp,
+                resetPasswordExpires,
+                resetPasswordToken,
+                created_at,
+                updated_at,
+                ...others
+              } = updatedPassword._doc;
+              return res.status(200).json({
+                code: 201,
+                ...others,
+              });
 
         } catch (error) {
             console.error("Error updating password:", error);
