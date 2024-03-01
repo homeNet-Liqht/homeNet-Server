@@ -6,19 +6,25 @@ const checkAuthorization = async (req, res, next) => {
     console.log(req.idDecoded);
     const accessToken = req.cookies.accesstoken;
 
-    if (!accessToken) return res.status(402).json("You are not authenticated");
+    if (!accessToken)
+      return res
+        .status(402)
+        .json({ code: 402, data: "You are not authenticated" });
 
     const user = await User.findById(req.idDecoded);
-    if (!user) return res.status(404).json("User was not found");
+    if (!user)
+      return res.status(404).json({ code: 404, data: "User was not found" });
 
     if (user.id != req.params.uid)
-      return res.status(403).json("You all now allow to do that");
+      return res
+        .status(403)
+        .json({ code: 403, data: "You are not allow to do that" });
 
     req.userData = user;
 
     next();
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({code: 500, data: error.message});
   }
 };
 
