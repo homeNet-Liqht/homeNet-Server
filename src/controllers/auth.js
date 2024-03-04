@@ -357,7 +357,8 @@ const authController = {
           ...userInfo,
         });
         const accessToken = helpers.generateAccessToken(isExistingEmail);
-        const refreshToken = helpers.generateRefreshToken(isExistingEmail);
+        const refreshToken = await helpers.generateRefreshToken(isExistingEmail);
+        console.log(refreshToken);
        
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
@@ -389,8 +390,7 @@ const authController = {
         });
   
         const accessToken = helpers.generateAccessToken(newUser);
-        const refreshToken = helpers.generateRefreshToken(newUser);
-
+        const refreshToken = await helpers.generateRefreshToken(newUser);
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
           secure: false,
