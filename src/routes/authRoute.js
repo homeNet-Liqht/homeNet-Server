@@ -14,6 +14,7 @@ authRoute.post("/otp/password", authController.forgotPassword);
 authRoute.post("/otp/verify", otpConfirmation, authController.validAccount);
 authRoute.post("/refresh", authController.requestRefreshToken);
 authRoute.post("/logout", checkAuthentication, authController.logOut);
+authRoute.post("/signin-with-google", authController.signInWithGoogle);
 authRoute.post("/signin", authController.signIn);
 authRoute.post("/signup", authController.signUp);
 

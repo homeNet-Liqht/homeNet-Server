@@ -119,18 +119,15 @@ const authController = {
         return res.status(400).json({ code: 400, status: "Wrong password!" });
 
       if (!user.is_active)
-        return res
-          .status(403)
-          .json({
-            code: 403,
-            status:
-              "This account isn't verify yet, please verify it before access to our application",
-          });
+        return res.status(403).json({
+          code: 403,
+          status:
+            "This account isn't verify yet, please verify it before access to our application",
+        });
 
       if (user && validPassword) {
         const accessToken = helpers.generateAccessToken(user);
         const refreshToken = helpers.generateRefreshToken(user);
-        console.log(accessToken);
         const updatedUser = await User.updateOne(
           {
             id: user._id,
@@ -351,6 +348,73 @@ const authController = {
       res.status(500).json({
         code: 500,
         data: error.message,
+      });
+    }
+  },
+  signInWithGoogle: async (req, res) => {
+    const userInfo = req.body;
+    const isExistingEmail = await User.findOne({ email: userInfo.email });
+
+    if (isExistingEmail) {
+      const accessToken = helpers.generateAccessToken(isExistingEmail);
+      const refreshToken = helpers.generateRefreshToken(isExistingEmail);
+      await User.findByIdAndUpdate(isExistingEmail.id, {
+        ...userInfo,
+        refresh_token: refreshToken,
+      });
+      await res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        path: "/",
+      });
+      await res.cookie("accesstoken", accessToken, {
+        secure: false,
+        path: "/",
+      });
+      const {
+        password,
+        refresh_token,
+        otp,
+        otp_exp,
+        resetPasswordExpires,
+        resetPasswordToken,
+        created_at,
+        updated_at,
+        ...others
+      } = isExistingEmail._doc;
+      return res.status(200).json({ code: 200, data: isExistingEmail });
+    } else {
+      const accessToken = helpers.generateAccessToken(isExistingEmail);
+      const refreshToken = helpers.generateRefreshToken(isExistingEmail);
+      const newUser = await User.create({
+        email: userInfo.email,
+        name: userInfo.name,
+        ...userInfo,
+        refresh_token: refreshToken,
+      });
+      await res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        path: "/",
+      });
+      await res.cookie("accesstoken", accessToken, {
+        secure: false,
+        path: "/",
+      });
+      const {
+        password,
+        refresh_token,
+        otp,
+        otp_exp,
+        resetPasswordExpires,
+        resetPasswordToken,
+        created_at,
+        updated_at,
+        ...others
+      } = newUser._doc;
+      return res.status(201).json({
+        code: 201,
+        data: newUser,
       });
     }
   },
