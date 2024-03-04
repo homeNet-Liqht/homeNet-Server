@@ -24,6 +24,9 @@ const userSchema = new Schema({
     type: String,
     default: null
   },
+  photo: {
+    type:String
+  },
   otp: {
     type: String,
   },
