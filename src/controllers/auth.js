@@ -346,7 +346,7 @@ const authController = {
       });
     }
   },
-  signInWithGoogle: async (req, res) => {
+  signInWithSocial: async (req, res) => {
     try {
       const userInfo = req.body;
 
