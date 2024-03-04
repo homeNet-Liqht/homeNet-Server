@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 
 const generateAccessToken = (user) => {
   return jwt.sign({
@@ -10,14 +11,17 @@ const generateAccessToken = (user) => {
   );
 };
 
-const generateRefreshToken = (user) => {
-  return jwt.sign({
-      id: user._id,
-    },
-    process.env.JWT_REFRESH_KEY, {
-      expiresIn: "30d"
-    }
-  );
+const generateRefreshToken = async (user) => {
+  try {
+    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_KEY, { expiresIn: "30d" });
+
+    await User.findByIdAndUpdate(user._id, { refresh_token: refreshToken });
+
+    return refreshToken;
+  } catch (error) {
+    console.error("Error generating refresh token:", error);
+    throw error;
+  }
 };
 
 const verifyAccessToken = (access_token) => {
