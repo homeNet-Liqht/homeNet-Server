@@ -1,11 +1,13 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyDGrLaQnsySqYH-gnuiidOxhypN9F1sbC4",
-  authDomain: "homenet-36148.firebaseapp.com",
-  projectId: "homenet-36148",
-  storageBucket: "homenet-36148.appspot.com",
-  messagingSenderId: "832402804801",
-  appId: "1:832402804801:web:3de4fc4cfc95251ed5b6c0",
-  measurementId: "G-86BFLD0014",
+  apiKey: "AIzaSyAGz6sYqIRsMvTpsfvgqzG6G-yFqrhxcVg",
+  authDomain: "homenet-41f42.firebaseapp.com",
+  projectId: "homenet-41f42",
+  storageBucket: "homenet-41f42.appspot.com",
+  messagingSenderId: "734126399931",
+  appId: "1:734126399931:web:43b541d8abc3e68a5d249e"
 };
 
-module.exports = firebaseConfig;
+
+module.exports = {
+  firebaseConfig
+};
