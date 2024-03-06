@@ -17,14 +17,14 @@ const userSchema = new Schema({
   },
   birthday: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
   },
   phone: {
     type: String,
-    default: null
+    default: null,
   },
   photo: {
-    type:String
+    type: String,
   },
   otp: {
     type: String,
@@ -35,19 +35,19 @@ const userSchema = new Schema({
   },
   is_active: {
     type: Boolean,
-    default: false
+    default: false,
   },
   created_at: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updated_at: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   refresh_token: {
     type: String,
-    default: ""
+    default: "",
   },
   resetPasswordToken: {
     type: String,

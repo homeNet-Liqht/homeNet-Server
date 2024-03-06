@@ -1,10 +1,8 @@
-
 const User = require("../models/user");
 
 const checkAuthorization = async (req, res, next) => {
   try {
     console.log(req.idDecoded);
-
 
     const user = await User.findById(req.idDecoded);
     if (!user)
@@ -19,7 +17,7 @@ const checkAuthorization = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(500).json({code: 500, data: error.message});
+    res.status(500).json({ code: 500, data: error.message });
   }
 };
 
