@@ -6,7 +6,7 @@ const {
   uploadBytesResumable,
   getDownloadURL,
 } = require("firebase/storage");
-const generateLink = require("../utils/url");
+const { generateLink, decodeLink } = require("../utils/url");
 const familyGroup = require("../models/familyGroup");
 const User = require("../models/user");
 
@@ -14,6 +14,25 @@ firebaseApp.initializeApp(firebaseConfig.firebaseConfig);
 const storage = getStorage();
 
 const familyGroupControllers = {
+  getFamilyGroup: async (req, res) => {
+    try {
+      const group = await familyGroup.findOne({
+        members: { $in: [req.idDecoded] },
+      });
+
+      if (!group) {
+        return res
+          .status(404)
+          .json({ code: 404, data: "Family group not found" });
+      }
+
+      res.status(200).json({ code: 200, data: group });
+    } catch (error) {
+      console.error("Error fetching family group:", error);
+      res.status(500).json({ code: 500, data: "Server error" });
+    }
+  },
+
   create: async (req, res) => {
     try {
       const user = await User.findById(req.idDecoded);
@@ -77,6 +96,9 @@ const familyGroupControllers = {
               host: user.id,
               photo: downloadURL,
             });
+
+            await newFamilyGroup.member.push(user.id);
+            await newFamilyGroup.save();
             return res.status(200).json({ code: 200, data: newFamilyGroup });
           } catch (error) {
             console.error(error);
@@ -95,6 +117,61 @@ const familyGroupControllers = {
       });
     }
   },
+
+  join: async (req, res) => {
+    try {
+      const user = await User.findById(req.idDecoded);
+      console.log(user);
+      const decodedLink = await decodeLink(req.params.gid);
+      console.log(decodedLink);
+      const group = await familyGroup.findById(decodedLink);
+
+      if (!group)
+        return res
+          .status(404)
+          .json({ code: 404, data: "Cannot find this room, try again later!" });
+
+      await group.members.push(user.id);
+
+      await group.save();
+
+      return res.status(200).json({
+        code: 200,
+        data: `${user.name} is being a part of ${group.familyName}`,
+      });
+    } catch (error) {
+      res.status(500).json({ code: 500, data: "Server error" });
+    }
+  },
+
+  hostEdit: async (req, res) => {
+    try {
+      const newHost = await User.findById(req.body.newHost);
+      const isInTheFam = await familyGroup.findOne({
+        members: { $in: [newHost.id] },
+      });
+      if (!isInTheFam)
+        return res
+          .status(401)
+          .json({ code: 401, data: "This user isn't in this family" });
+      if (!newHost)
+        return res
+          .status(404)
+          .json({ code: 404, data: "Cannot find this user, try again later!" });
+      await familyGroup.findOneAndUpdate(
+        { id: req.userData.id },
+        { $set: { host: newHost.id } }
+      );
+
+      res
+        .status(200)
+        .json({ code: 200, data: `${newHost.name} has became the new host` });
+    } catch (error) {
+      res.status(500).json({ code: 500, data: "Server error" });
+    }
+  },
+
+  leave: async (req, res) => {},
 
   generateJoinLink: async (req, res) => {
     try {

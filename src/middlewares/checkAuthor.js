@@ -1,15 +1,10 @@
-const { verifyAccessToken } = require("../helpers/jwt");
+
 const User = require("../models/user");
 
 const checkAuthorization = async (req, res, next) => {
   try {
     console.log(req.idDecoded);
-    const accessToken = req.cookies.accesstoken;
 
-    if (!accessToken)
-      return res
-        .status(402)
-        .json({ code: 402, data: "You are not authenticated" });
 
     const user = await User.findById(req.idDecoded);
     if (!user)
