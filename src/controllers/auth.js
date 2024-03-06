@@ -6,6 +6,7 @@ const helpers = require("../helpers/jwt");
 const Email = require("../helpers/email");
 
 const authController = {
+
   signUp: async (req, res) => {
     try {
       const isExistingEmail = await User.findOne({
@@ -346,6 +347,7 @@ const authController = {
       });
     }
   },
+
   signInWithSocial: async (req, res) => {
     try {
       const userInfo = req.body;
@@ -420,6 +422,7 @@ const authController = {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+  
 };
 
 module.exports = {
