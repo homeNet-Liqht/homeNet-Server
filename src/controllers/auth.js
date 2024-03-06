@@ -6,7 +6,6 @@ const helpers = require("../helpers/jwt");
 const Email = require("../helpers/email");
 
 const authController = {
-
   signUp: async (req, res) => {
     try {
       const isExistingEmail = await User.findOne({
@@ -359,9 +358,11 @@ const authController = {
           ...userInfo,
         });
         const accessToken = helpers.generateAccessToken(isExistingEmail);
-        const refreshToken = await helpers.generateRefreshToken(isExistingEmail);
+        const refreshToken = await helpers.generateRefreshToken(
+          isExistingEmail
+        );
         console.log(refreshToken);
-       
+
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
           secure: false,
@@ -390,7 +391,7 @@ const authController = {
           photo: userInfo.photo,
           is_active: true,
         });
-  
+
         const accessToken = helpers.generateAccessToken(newUser);
         const refreshToken = await helpers.generateRefreshToken(newUser);
         await res.cookie("refreshtoken", refreshToken, {
@@ -422,9 +423,6 @@ const authController = {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
-  
 };
 
-module.exports = {
-  authController,
-};
+module.exports = authController;

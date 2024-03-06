@@ -45,6 +45,5 @@ module.exports = class Email {
       "[homeNet] Renew password request",
       `Hi ${user.name}.\nWe have received your renew password request from email: ${user.email}. \nFeel free confirm your request by using this OTP: ${otp}, please remember that this OTP is only valid in 15 minutes`
     );
-
   }
 };
