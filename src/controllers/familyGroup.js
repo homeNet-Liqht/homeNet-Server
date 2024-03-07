@@ -1,4 +1,4 @@
-const uploadImage = require("../config/firebase/storage");
+const { uploadImage } = require("../config/firebase/storage");
 const { generateLink, decodeLink } = require("../helpers/url");
 const familyGroup = require("../models/familyGroup");
 const User = require("../models/user");
@@ -31,12 +31,10 @@ const familyGroupControllers = {
         members: { $in: [req.idDecoded] },
       });
       if (isMember) {
-        return res
-          .status(403)
-          .json({
-            code: 403,
-            data: "This user is already a member in a group",
-          });
+        return res.status(403).json({
+          code: 403,
+          data: "This user is already a member in a group",
+        });
       }
 
       const isHosting = await familyGroup.findOne({ host: req.idDecoded });

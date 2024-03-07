@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const uploadImage = require("../config/firebase/storage");
+const { uploadImage } = require("../config/firebase/storage");
 
 const userController = {
   currentUser: async (req, res) => {
@@ -125,7 +125,6 @@ const userController = {
   editImage: async (req, res) => {
     try {
       const user = req.userData;
-      console.log(req.file);
       let downloadURL;
       try {
         downloadURL = await uploadImage(req.file);
