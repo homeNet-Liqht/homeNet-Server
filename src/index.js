@@ -11,17 +11,16 @@ dotenv.config();
 const app = express();
 connect();
 
-
 app.use(morgan());
-app.use(cors({
-  credentials: true,
-  origin: "*"
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: "*",
+  })
+);
 app.use(cookieParser());
 app.use(helmet());
 app.use(express.json());
-
-
 
 route(app);
 
