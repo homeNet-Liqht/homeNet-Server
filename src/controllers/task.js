@@ -14,7 +14,7 @@ const taskController = {
       }
 
       const assignees = req.body.assignees.split(",");
-
+      // return res.json(assignees);
       const checkingAssignees = await Promise.all(
         assignees.map(async (assignee) => {
           const isInAGroup = await checkIsInAGroup(assignee);

@@ -80,7 +80,7 @@ const uploadImages = async (imagesFiles) => {
           .replace(/\s/g, "");
         const storageRefFilename = ref(
           storage,
-          `family-image/${sanitizedFilename}`
+          `task-image/${sanitizedFilename}`
         );
 
         return new Promise((resolve, reject) => {
