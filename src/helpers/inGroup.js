@@ -13,5 +13,17 @@ const checkIsInAGroup = async (id) => {
   }
 };
 
+const checkIsInAssignerGroup = async (assignerId, assigneeId) => {
+  try {
+    const assignerGroup = await familyGroup.findOne({
+      members: { $in: [assignerId] },
+    });
+    const isAssigneeInThisGroup = assignerGroup.members.includes(assigneeId);
+    if (!isAssigneeInThisGroup) return false;
+    return true;
+  } catch (error) {
+    console.log(error.message)
+  }
+};
 
-module.exports = checkIsInAGroup
+module.exports = {checkIsInAGroup, checkIsInAssignerGroup};
