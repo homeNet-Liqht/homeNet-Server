@@ -131,8 +131,8 @@ const authController = {
 
       if (user && validPassword) {
         const accessToken = helpers.generateAccessToken(user);
-        const refreshToken = helpers.generateRefreshToken(user);
-
+        const refreshToken = await helpers.generateRefreshToken(user);
+        console.log(refreshToken);
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
           secure: false,

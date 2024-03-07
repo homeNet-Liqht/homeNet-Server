@@ -1,4 +1,5 @@
-const uploadImage = require("../config/firebase/storage");
+const { uploadImage } = require("../config/firebase/storage");
+const { checkIsInAGroup } = require("../helpers/inGroup");
 const { generateLink, decodeLink } = require("../helpers/url");
 const familyGroup = require("../models/familyGroup");
 const User = require("../models/user");
@@ -6,9 +7,7 @@ const User = require("../models/user");
 const familyGroupControllers = {
   getFamilyGroup: async (req, res) => {
     try {
-      const group = await familyGroup.findOne({
-        members: { $in: [req.idDecoded] },
-      });
+      const group = await checkIsInAGroup(req.idDecoded);
 
       if (!group) {
         return res
@@ -27,16 +26,12 @@ const familyGroupControllers = {
     try {
       const user = await User.findById(req.idDecoded);
 
-      const isMember = await familyGroup.findOne({
-        members: { $in: [req.idDecoded] },
-      });
+      const isMember = await checkIsInAGroup(req.idDecoded);
       if (isMember) {
-        return res
-          .status(403)
-          .json({
-            code: 403,
-            data: "This user is already a member in a group",
-          });
+        return res.status(403).json({
+          code: 403,
+          data: "This user is already a member in a group",
+        });
       }
 
       const isHosting = await familyGroup.findOne({ host: req.idDecoded });
@@ -82,9 +77,7 @@ const familyGroupControllers = {
         return res
           .status(404)
           .json({ code: 404, data: "Cannot find this room, try again later!" });
-      const isUserInGroup = await familyGroup.findOne({
-        members: { $in: [user.id] },
-      });
+      const isUserInGroup = await checkIsInAGroup(user.id);
       if (isUserInGroup)
         return res
           .status(403)
@@ -106,9 +99,7 @@ const familyGroupControllers = {
   hostEdit: async (req, res) => {
     try {
       const newHost = await User.findById(req.body.newHost);
-      const isInTheFam = await familyGroup.findOne({
-        members: { $in: [newHost.id] },
-      });
+      const isInTheFam = await checkIsInAGroup(req.idDecoded)
       if (!isInTheFam)
         return res
           .status(401)
