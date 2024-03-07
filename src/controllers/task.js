@@ -57,14 +57,16 @@ const taskController = {
         photo: downloadURLs,
       });
 
-      if (newTask) return res.status(200).json(assignees);
+      if (newTask)
+        return res
+          .status(200)
+          .json({ code: 200, data: "Created task successful" });
     } catch (error) {
       console.error("An error occurred:", error.message);
       return res.status(500).json({ error: error.message });
     }
   },
   edit: async (req, res) => {
-    console.log(req.userData);
     try {
       const theTask = await task.findById(req.params.tid);
 
@@ -135,6 +137,29 @@ const taskController = {
           .status(200)
           .json({ code: 200, data: "Task updated successfully" });
       }
+    } catch (error) {
+      res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+
+  delete: async (req, res) => {
+    try {
+      const theTask = await task.findById(req.params.tid);
+      if (!theTask)
+        return res.status(404).json({
+          code: 404,
+          data: "Cannot find this task, please try again later!",
+        });
+      if (req.userData.id != theTask.assigner) {
+        return res
+          .status(402)
+          .json({ code: 402, data: "You're not an assigner in this task" });
+      }
+
+      await task.findByIdAndDelete(req.params.tid);
+      return res
+        .status(200)
+        .json({ code: 200, data: "Task deleted successfully" });
     } catch (error) {
       res.status(500).json({ code: 500, data: error.message });
     }

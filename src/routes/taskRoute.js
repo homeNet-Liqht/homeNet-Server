@@ -17,5 +17,5 @@ taskRoute.put(
   checkAuthorization,
   taskController.edit
 );
-
+taskRoute.delete("/del/:uid/:tid", checkAuthorization, taskController.delete);
 module.exports = taskRoute;
