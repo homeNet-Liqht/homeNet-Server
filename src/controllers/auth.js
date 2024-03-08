@@ -211,7 +211,7 @@ const authController = {
             return res.status(401).json({ code: 401, data: "User not found" });
           }
           const newAccessToken = helpers.generateAccessToken(userDb);
-          const newRefreshToken = helpers.generateRefreshToken(userDb);
+          const newRefreshToken = await helpers.generateRefreshToken(userDb);
 
           const updateRefreshToken = await User.findOneAndUpdate(
             {
@@ -240,7 +240,7 @@ const authController = {
 
           res.status(200).json({
             code: 200,
-            data: "Sign in successfully",
+            data: "Reset successfully",
           });
         }
       );
