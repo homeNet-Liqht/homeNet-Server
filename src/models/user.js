@@ -26,6 +26,9 @@ const userSchema = new Schema({
   photo: {
     type: String,
   },
+  fcmToken: {
+    type: [String],
+  },
   otp: {
     type: String,
   },

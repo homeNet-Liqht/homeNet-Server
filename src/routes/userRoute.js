@@ -21,6 +21,12 @@ userRoute.put(
 
   userController.editImage
 );
+userRoute.put(
+  "/update-fcmtoken/:uid",
+  checkAuthentication,
+  checkAuthorization,
+  userController.updateFcmToken
+);
 userRoute.post("/reset-password", userController.updatePassword);
 
 module.exports = userRoute;

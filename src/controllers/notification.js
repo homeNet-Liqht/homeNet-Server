@@ -2,6 +2,24 @@ const User = require("../models/user");
 const Notification = require("../models/notification");
 const Task = require("../models/task");
 const FamilyGroup = require("../models/familyGroup");
+const { firebaseAdmin } = require("../config/firebase/admin");
+
+const sendNotification = async (title, body) => {
+  try {
+    const send = await firebaseAdmin.messaging().send({
+      token:
+        "f1CUMUe6T2q7Sox0qOnPSB:APA91bFse1g3w_YVsRu0AIsRCAZt2XbgjCF8F7JnhP-foJZtupCsIwEUq6GC9xqLX1y_gDXsrSneXG1bD-HMlbIh4xa7f5YPMm17o7jkLL-v9KUwgaHm91XxEGaM9BJBG53rcyeokCw1",
+      notification: {
+        title: title || "",
+        body: body || "",
+      },
+    });
+    console.log("send successful", send);
+  } catch (error) {
+    console.log("err",error);
+  }
+};
+
 const notificationController = {
   sending: async (req, res) => {
     try {
@@ -38,19 +56,28 @@ const notificationController = {
         });
       const finishTime = task.endTime - Date.now();
       const timeRemaining = Math.ceil(finishTime / (1000 * 60 * 60));
-
+      let titleMessage;
       let sendingMessage;
 
       if (req.body.type === "housework") {
         sendingMessage = `${sender.name} has sent you a housework: ${task.title}`;
+        titleMessage = `New housework from ${sender.name} `;
       } else if (req.body.type === "moving") {
         sendingMessage = `${sender.name} has sent you a moving task: ${task.title}`;
+        titleMessage = `New moving from ${sender.name} `;
       } else if (req.body.type === "time") {
         sendingMessage = `${task.title} will be finished in ${timeRemaining} hours`;
+        titleMessage = `Alert time in ${task.title} `;
       } else {
         sendingMessage = "";
+        titleMessage = "";
       }
-      
+      const sendBells = await sendNotification(titleMessage, sendingMessage);
+      console.log(sendBells);
+      if (!sendBells)
+        return res
+          .status(409)
+          .json({ code: 409, data: "Notification sent fail!" });
       const newNotification = await Notification.create({
         sender_id: req.idDecoded,
         receiver_id: req.body.receivers,
@@ -65,7 +92,7 @@ const notificationController = {
         .status(201)
         .json({ code: 201, data: "New message has been sent!" });
     } catch (error) {
-      return res.status(500).json({ code: 500, data: "Server error" });
+      res.status(500).json({ code: 500, data: error.message });
     }
   },
 };
