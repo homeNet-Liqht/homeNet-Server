@@ -43,6 +43,12 @@ const taskSchema = new Schema({
         `End time must be at least 2 hours greater than the start time`,
     },
   },
+  location: [
+    {
+      title: { type: String },
+      address: { type: String },
+    },
+  ],
   actualStartTime: {
     type: Date,
   },
