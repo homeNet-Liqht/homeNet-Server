@@ -145,6 +145,34 @@ const userController = {
       return res.status(500).json({ code: 500, data: "Internal server error" });
     }
   },
+
+  updateFCMToken: async (req, res) => {
+    try {
+      const updateUser = await User.findOneAndUpdate(
+        { _id: req.idDecoded },
+        { $set: { fcmToken: req.body.fcmToken } },
+        { new: true }
+      );
+
+      if (!updateUser) {
+        return res.status(404).json({ code: 404, data: "User not found" });
+      }
+      const {
+        password,
+        refresh_token,
+        otp,
+        otp_exp,
+        resetPasswordExpires,
+        resetPasswordToken,
+        created_at,
+        updated_at,
+        ...others
+      } = updateUser._doc;
+      return res.status(200).json(others);
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
 };
 
 module.exports = userController;
