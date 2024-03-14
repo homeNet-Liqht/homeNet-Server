@@ -54,16 +54,16 @@ const taskController = {
     try {
       let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
       const limit = 3;
-
+  
       const query = {
         $or: [
           { assignees: { $in: [req.idDecoded] } },
           { assigner: req.idDecoded },
         ],
       };
-
+  
       const totalTasks = await task.countDocuments(query);
-
+  
       if (lastDataIndex >= totalTasks) {
         return res.status(200).json({
           code: 200,
@@ -71,14 +71,14 @@ const taskController = {
           message: "No more data available",
         });
       }
-
+  
       const tasks = await task
         .find(query)
         .populate("assigner", "_id name photo")
         .populate("assignees", "_id name photo")
         .skip(lastDataIndex)
         .limit(limit);
-
+  
       if (!tasks || tasks.length === 0) {
         return res.status(404).json({
           code: 404,
@@ -86,14 +86,15 @@ const taskController = {
           message: "You don't have any task!",
         });
       }
-
-      lastDataIndex += tasks.length;
-
+  
+      lastDataIndex += limit;
+  
       return res.status(200).json({ code: 200, data: tasks, lastDataIndex });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+  
 
   create: async (req, res) => {
     try {
