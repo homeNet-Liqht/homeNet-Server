@@ -7,17 +7,14 @@ const task = require("../models/task");
 
 const taskController = {
   create: async (req, res) => {
-    console.log(req.body, req.files);
-    return res.status(200).json(req.body, req.files);
     try {
       const checkingAssigner = await checkIsInAGroup(req.idDecoded);
-
+      console.log(req.files);
       if (!checkingAssigner) {
         return res
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
-
       const assignees = req.body.assignees.split(",");
       const checkingAssignees = await Promise.all(
         assignees.map(async (assignee) => {
