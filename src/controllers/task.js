@@ -4,8 +4,72 @@ const {
   checkIsInAssignerGroup,
 } = require("../helpers/inGroup");
 const task = require("../models/task");
-
+const User = require("../models/user");
 const taskController = {
+  getTask: async (req, res) => {
+    try {
+      const foundTask = await task.findById(req.params.tid);
+      if (!foundTask) {
+        return res
+          .status(404)
+          .json({ code: 404, data: "Couldn't find this task!" });
+      }
+
+      if (
+        foundTask.assignees.includes(req.idDecoded) ||
+        foundTask.assigner.equals(req.idDecoded)
+      ) {
+        const assignerData = await User.findById(foundTask.assigner);
+
+        const assigneesData = await User.find({
+          _id: { $in: foundTask.assignees },
+        });
+
+        const responseData = {
+          task: foundTask,
+          assigner: {
+            _id: assignerData._id,
+            name: assignerData.name,
+            photo: assignerData.photo,
+          },
+          assignees: assigneesData.map((assignee) => ({
+            _id: assignee._id,
+            name: assignee.name,
+            photo: assignee.photo,
+          })),
+        };
+
+        return res.status(200).json({ code: 200, data: responseData });
+      } else {
+        return res.status(403).json({
+          code: 403,
+          data: "You are not authorized to access this task!",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+  getTasks: async (req, res) => {
+    try {
+      const isMemberInTask = await task.find({
+        $or: [
+          { assignees: { $in: [req.idDecoded] } },
+          { assigner: req.idDecoded },
+        ],
+      });
+
+      if (!isMemberInTask)
+        return res
+          .status(404)
+          .json({ code: 404, data: "You don't have any task!" });
+
+      return res.status(200).json({ code: 200, data: isMemberInTask });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+
   create: async (req, res) => {
     try {
       const checkingAssigner = await checkIsInAGroup(req.idDecoded);
