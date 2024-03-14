@@ -361,7 +361,7 @@ const authController = {
         const refreshToken = await helpers.generateRefreshToken(
           isExistingEmail
         );
-        console.log(refreshToken);
+     
 
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,

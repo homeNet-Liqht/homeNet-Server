@@ -7,6 +7,8 @@ const task = require("../models/task");
 
 const taskController = {
   create: async (req, res) => {
+    console.log(req.body, req.files);
+    return res.status(200).json(req.body, req.files);
     try {
       const checkingAssigner = await checkIsInAGroup(req.idDecoded);
 
