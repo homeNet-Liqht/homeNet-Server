@@ -24,24 +24,9 @@ const taskSchema = new Schema({
   },
   startTime: {
     type: Date,
-    required: true,
-    validate: {
-      validator: function (value) {
-        return value.getTime() > Date.now();
-      },
-      message: (props) => `Start time must be greater than the current date`,
-    },
   },
   endTime: {
     type: Date,
-    required: true,
-    validate: {
-      validator: function (value) {
-        return value.getTime() - this.startTime.getTime() >= 2 * 60 * 60 * 1000;
-      },
-      message: (props) =>
-        `End time must be at least 2 hours greater than the start time`,
-    },
   },
   location: [
     {

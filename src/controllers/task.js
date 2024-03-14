@@ -25,6 +25,7 @@ const taskController = {
           return isInAGroup;
         })
       );
+      console.log(assignees);
       if (checkingAssignees.includes(false)) {
         return res.status(403).json({
           code: 403,
