@@ -52,29 +52,40 @@ const taskController = {
   },
   getTasks: async (req, res) => {
     try {
-      const isMemberInTask = await task
-        .find({
-          $or: [
-            { assignees: { $in: [req.idDecoded] } },
-            { assigner: req.idDecoded },
-          ],
-        })
-        .populate({
-          path: "assigner",
-          select: "_id name photo",
-        })
-        .populate({
-          path: "assignees",
-          select: "_id name photo",
-        });
+      let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
+      const limit = 3;
 
-      if (!isMemberInTask || isMemberInTask.length === 0) {
+      const query = {
+        $or: [
+          { assignees: { $in: [req.idDecoded] } },
+          { assigner: req.idDecoded },
+        ],
+      };
+
+      const totalTasks = await task.countDocuments(query);
+
+      if (lastDataIndex >= totalTasks) {
         return res
-          .status(404)
-          .json({ code: 404, data: "You don't have any task!" });
+          .status(200)
+          .json({ code: 200, data: [], message: "No more data available" });
       }
 
-      return res.status(200).json({ code: 200, data: isMemberInTask });
+      const tasks = await task
+        .find(query)
+        .populate("assigner", "_id name photo")
+        .populate("assignees", "_id name photo")
+        .skip(lastDataIndex)
+        .limit(limit);
+
+      if (!tasks || tasks.length === 0) {
+        return res
+          .status(404)
+          .json({ code: 404, data: [], message: "You don't have any task!" });
+      }
+
+      lastDataIndex += tasks.length;
+
+      return res.status(200).json({ code: 200, data: tasks, lastDataIndex });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
