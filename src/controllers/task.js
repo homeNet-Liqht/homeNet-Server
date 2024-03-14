@@ -65,9 +65,11 @@ const taskController = {
       const totalTasks = await task.countDocuments(query);
 
       if (lastDataIndex >= totalTasks) {
-        return res
-          .status(200)
-          .json({ code: 200, data: [], message: "No more data available" });
+        return res.status(200).json({
+          code: 200,
+          data: [],
+          message: "No more data available",
+        });
       }
 
       const tasks = await task
@@ -78,9 +80,11 @@ const taskController = {
         .limit(limit);
 
       if (!tasks || tasks.length === 0) {
-        return res
-          .status(404)
-          .json({ code: 404, data: [], message: "You don't have any task!" });
+        return res.status(404).json({
+          code: 404,
+          data: [],
+          message: "You don't have any task!",
+        });
       }
 
       lastDataIndex += tasks.length;
