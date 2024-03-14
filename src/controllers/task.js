@@ -9,6 +9,7 @@ const taskController = {
   create: async (req, res) => {
     try {
       const checkingAssigner = await checkIsInAGroup(req.idDecoded);
+      console.log(checkingAssigner);
       if (!checkingAssigner) {
         return res
           .status(403)
