@@ -6,13 +6,13 @@ const taskSchema = new Schema({
   assigner: {
     type: Schema.Types.ObjectId,
     require,
-    ref: "Users",
+    ref: "User",
   },
   assignees: [
     {
       type: Schema.Types.ObjectId,
       require,
-      ref: "Users",
+      ref: "User",
     },
   ],
   title: {

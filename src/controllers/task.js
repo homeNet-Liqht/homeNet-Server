@@ -52,17 +52,27 @@ const taskController = {
   },
   getTasks: async (req, res) => {
     try {
-      const isMemberInTask = await task.find({
-        $or: [
-          { assignees: { $in: [req.idDecoded] } },
-          { assigner: req.idDecoded },
-        ],
-      });
+      const isMemberInTask = await task
+        .find({
+          $or: [
+            { assignees: { $in: [req.idDecoded] } },
+            { assigner: req.idDecoded },
+          ],
+        })
+        .populate({
+          path: "assigner",
+          select: "_id name photo",
+        })
+        .populate({
+          path: "assignees",
+          select: "_id name photo",
+        });
 
-      if (!isMemberInTask)
+      if (!isMemberInTask || isMemberInTask.length === 0) {
         return res
           .status(404)
           .json({ code: 404, data: "You don't have any task!" });
+      }
 
       return res.status(200).json({ code: 200, data: isMemberInTask });
     } catch (error) {
