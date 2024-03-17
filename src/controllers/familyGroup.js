@@ -7,15 +7,19 @@ const User = require("../models/user");
 const familyGroupControllers = {
   getFamilyGroup: async (req, res) => {
     try {
-      const group = await checkIsInAGroup(req.idDecoded);
+      const isInAGroup = await checkIsInAGroup(req.idDecoded);
 
-      if (!group) {
+      if (!isInAGroup) {
         return res
           .status(404)
           .json({ code: 404, data: "Family group not found" });
       }
 
-      res.status(200).json({ code: 200, data: group });
+      const group = await familyGroup
+        .findOne({ members: req.idDecoded })
+        .populate({ path: "members", select: "_id name photo" });
+
+        res.status(200).json({ code: 200, data: group });
     } catch (error) {
       console.error("Error fetching family group:", error);
       res.status(500).json({ code: 500, data: "Server error" });
@@ -99,7 +103,7 @@ const familyGroupControllers = {
   hostEdit: async (req, res) => {
     try {
       const newHost = await User.findById(req.body.newHost);
-      const isInTheFam = await checkIsInAGroup(req.idDecoded)
+      const isInTheFam = await checkIsInAGroup(req.idDecoded);
       if (!isInTheFam)
         return res
           .status(401)
