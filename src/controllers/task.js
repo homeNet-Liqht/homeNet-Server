@@ -50,7 +50,7 @@ const taskController = {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
-  getTasks: async (req, res) => {
+ getTasks : async (req, res) => {
     try {
       let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
       const limit = 3;
@@ -72,12 +72,15 @@ const taskController = {
         });
       }
   
+      const remainingTasks = totalTasks - lastDataIndex;
+      const fetchLimit = Math.min(limit, remainingTasks);
+  
       const tasks = await task
         .find(query)
         .populate("assigner", "_id name photo")
         .populate("assignees", "_id name photo")
         .skip(lastDataIndex)
-        .limit(limit);
+        .limit(fetchLimit);
   
       if (!tasks || tasks.length === 0) {
         return res.status(404).json({
@@ -87,13 +90,14 @@ const taskController = {
         });
       }
   
-      lastDataIndex += limit;
+      lastDataIndex += fetchLimit;
   
       return res.status(200).json({ code: 200, data: tasks, lastDataIndex });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+  
   
 
   create: async (req, res) => {
