@@ -112,7 +112,8 @@ const taskController = {
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
-      if (req.body.assignees)
+      console.log(req.body.assignees);
+      if (!req.body.assignees)
         return res
           .status(403)
           .json({ code: 403, data: "Please choose at least one member" });
