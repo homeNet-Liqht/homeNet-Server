@@ -78,7 +78,7 @@ const taskController = {
       console.log(fetchLimit);
       const tasks = await task
         .find(query)
-        .sort({_id: -1})
+        .sort({ _id: -1 })
         .populate("assigner", "_id name photo")
         .populate("assignees", "_id name photo")
         .skip(lastDataIndex)
@@ -112,16 +112,20 @@ const taskController = {
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
+      if (req.body.assignees)
+        return res
+          .status(403)
+          .json({ code: 403, data: "Please choose at least one member" });
       const assignees = req.body.assignees.split(",");
-      const checkingAssignees = await Promise.all(
-        assignees.map(async (assignee) => {
-          const isInAGroup = await checkIsInAssignerGroup(
-            req.idDecoded,
-            assignee
-          );
-          return isInAGroup;
-        })
-      );
+      const promises = assignees.map(async (assignee) => {
+        const isInAGroup = await checkIsInAssignerGroup(
+          req.idDecoded,
+          assignee
+        );
+        return isInAGroup;
+      });
+
+      const checkingAssignees = await Promise.all(promises);
       console.log(assignees);
       if (checkingAssignees.includes(false)) {
         return res.status(403).json({
@@ -129,20 +133,28 @@ const taskController = {
           data: "There are some people who aren't in this group!",
         });
       }
+
       const startTime = new Date(req.body.startTime);
       if (startTime.getTime() < Date.now()) {
         return res
           .status(418)
           .json({ code: 418, data: "You cannot pick the time from the past" });
       }
+
       const endTime = new Date(req.body.endTime);
-      if (endTime.getTime() < startTime.getTime())
+      if (endTime.getTime() < startTime.getTime()) {
         return res.status(418).json({
           code: 418,
-          data: "The end time must greater than the start time",
+          data: "The end time must be greater than the start time",
         });
-      const downloadURLs = await uploadImages(req.files);
-      const newTask = task.create({
+      }
+
+      let downloadURLs = [];
+      if (req.files && req.files.length > 0) {
+        downloadURLs = await uploadImages(req.files);
+      }
+
+      const newTask = await task.create({
         assigner: req.idDecoded,
         assignees: assignees,
         title: req.body.title,
@@ -151,18 +163,20 @@ const taskController = {
         actualStartTime: req.body.startTime,
         actualEndTime: req.body.endTime,
         description: req.body.description,
-        photo: downloadURLs,
+        photo: downloadURLs, // Assign the download URLs to the task
       });
 
-      if (newTask)
+      if (newTask) {
         return res
           .status(200)
-          .json({ code: 200, data: "Created task successful" });
+          .json({ code: 200, data: "Created task successfully" });
+      }
     } catch (error) {
       console.error("An error occurred:", error.message);
       return res.status(500).json({ error: error.message });
     }
   },
+
   edit: async (req, res) => {
     try {
       const theTask = await task.findById(req.params.tid);
