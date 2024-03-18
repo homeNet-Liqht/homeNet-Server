@@ -78,6 +78,7 @@ const taskController = {
       console.log(fetchLimit);
       const tasks = await task
         .find(query)
+        .sort({_id: -1})
         .populate("assigner", "_id name photo")
         .populate("assignees", "_id name photo")
         .skip(lastDataIndex)
