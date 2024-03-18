@@ -113,6 +113,7 @@ const taskController = {
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
       console.log(req.body.assignees);
+
       if (!req.body.assignees)
         return res
           .status(403)
@@ -127,7 +128,6 @@ const taskController = {
       });
 
       const checkingAssignees = await Promise.all(promises);
-      console.log(assignees);
       if (checkingAssignees.includes(false)) {
         return res.status(403).json({
           code: 403,
@@ -164,7 +164,7 @@ const taskController = {
         actualStartTime: req.body.startTime,
         actualEndTime: req.body.endTime,
         description: req.body.description,
-        photo: downloadURLs, // Assign the download URLs to the task
+        photo: downloadURLs,
       });
 
       if (newTask) {
