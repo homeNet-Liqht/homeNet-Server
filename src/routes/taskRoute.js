@@ -5,6 +5,8 @@ const { checkAuthorization } = require("../middlewares/checkAuthor");
 
 const taskRoute = express.Router();
 
+taskRoute.get("/single/:tid", taskController.getTask);
+taskRoute.get("/tasks", taskController.getTasks);
 taskRoute.post(
   "/create",
   upload.fields([{ name: "image" }]),

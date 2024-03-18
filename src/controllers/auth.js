@@ -109,12 +109,13 @@ const authController = {
       const user = await User.findOne({
         email: req.body.email,
       });
+
       if (!user)
         return res
           .status(404)
           .json({ code: 404, status: "Cannot find this email!" });
 
-      const validPassword = await bcrypt.compare(
+      const validPassword = bcrypt.compareSync(
         req.body.password,
         user.password
       );
@@ -132,7 +133,6 @@ const authController = {
       if (user && validPassword) {
         const accessToken = helpers.generateAccessToken(user);
         const refreshToken = await helpers.generateRefreshToken(user);
-        console.log(refreshToken);
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
           secure: false,
@@ -361,7 +361,6 @@ const authController = {
         const refreshToken = await helpers.generateRefreshToken(
           isExistingEmail
         );
-        console.log(refreshToken);
 
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,

@@ -7,10 +7,22 @@ const userController = {
     try {
       const user = await User.findById(req.idDecoded);
       if (!user)
-        res.status(404).json({
+        return res.status(404).json({
           code: 404,
           data: "Cannot find this user",
         });
+
+      const currentTime = new Date();
+      const currentHour = currentTime.getHours();
+      let greeting;
+
+      if (currentHour < 12) {
+        greeting = "Good morning";
+      } else if (currentHour < 18) {
+        greeting = "Good afternoon";
+      } else {
+        greeting = "Good evening";
+      }
 
       const {
         password,
@@ -23,12 +35,14 @@ const userController = {
         updated_at,
         ...others
       } = user._doc;
+
       return res.status(200).json({
         code: 200,
+        greeting,
         ...others,
       });
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         code: 500,
         data: error.message,
       });
@@ -143,6 +157,34 @@ const userController = {
     } catch (error) {
       console.error("Error editing image:", error);
       return res.status(500).json({ code: 500, data: "Internal server error" });
+    }
+  },
+
+  updateFCMToken: async (req, res) => {
+    try {
+      const updateUser = await User.findOneAndUpdate(
+        { _id: req.idDecoded },
+        { $set: { fcmToken: req.body.fcmToken } },
+        { new: true }
+      );
+
+      if (!updateUser) {
+        return res.status(404).json({ code: 404, data: "User not found" });
+      }
+      const {
+        password,
+        refresh_token,
+        otp,
+        otp_exp,
+        resetPasswordExpires,
+        resetPasswordToken,
+        created_at,
+        updated_at,
+        ...others
+      } = updateUser._doc;
+      return res.status(200).json(others);
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
     }
   },
 };
