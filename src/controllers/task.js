@@ -72,7 +72,7 @@ const taskController = {
         });
       }
 
-      const remainingTasks = totalTasks - lastDataIndex;
+      const remainingTasks = totalTasks - lastDataIndex * 3;
       const fetchLimit = Math.min(limit, remainingTasks);
 
       const tasks = await task
