@@ -11,7 +11,7 @@ firebaseApp.initializeApp(firebaseConfig.firebaseConfig);
 const storage = getStorage();
 
 const uploadImage = async (imageFile) => {
-  const acceptedEndPoints = ["image/png", "image/jpg", "image/jpeg"];
+  const acceptedEndPoints = ["image/heif","image/png", "image/jpg", "image/jpeg"];
   const metadata = {
     contentType: imageFile.mimetype,
   };
@@ -64,7 +64,7 @@ const uploadImages = async (imagesFiles) => {
   try {
     const downloadURLs = await Promise.all(
       imagesFiles.image.map(async (file) => {
-        const acceptedEndPoints = ["image/png", "image/jpg", "image/jpeg"];
+        const acceptedEndPoints = ["image/heif","image/png", "image/jpg", "image/jpeg"];
         const metadata = {
           contentType: file.mimetype,
         };
