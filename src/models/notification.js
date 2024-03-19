@@ -16,7 +16,7 @@ const notificationSchema = new Schema({
   task_id: { type: Schema.Types.ObjectId },
   type: {
     type: String,
-    enum: ["housework", "moving", "time"],
+    enum: [ "invite", "join", "time", "location", "task", "accept", "finish", "update", "delete"],
   },
   message: {
     type: String,

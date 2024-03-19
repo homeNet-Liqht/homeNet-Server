@@ -1,6 +1,6 @@
 const { firebaseAdmin } = require("../config/firebase/admin");
 
-const sendNotification = async (token, title, body) => {
+const sendNotification = async (token, { title, body }) => {
   try {
     await firebaseAdmin.messaging().send({
       token: token,
