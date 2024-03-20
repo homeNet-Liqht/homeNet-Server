@@ -18,9 +18,8 @@ const uploadImage = async (imageFile) => {
     "image/jpeg",
   ];
   const metadata = {
-    contentType: imageFile.image[0].mimetype,
+    contentType: imageFile.mimetype,
   };
-  console.log(metadata);
   if (!acceptedEndPoints.includes(metadata.contentType)) {
     return Promise.reject(
       new Error(
@@ -29,7 +28,7 @@ const uploadImage = async (imageFile) => {
     );
   }
 
-  const sanitizedFilename = imageFile.image[0].originalname
+  const sanitizedFilename = imageFile[0].originalname
     .replace(/[^\x00-\x7F]/g, "")
     .replace(/\s/g, "");
   const storageRefFilename = ref(storage, `family-image/${sanitizedFilename}`);
@@ -37,7 +36,7 @@ const uploadImage = async (imageFile) => {
   return new Promise((resolve, reject) => {
     const uploadTask = uploadBytesResumable(
       storageRefFilename,
-      imageFile.image[0].buffer,
+      imageFile[0].buffer,
       metadata
     );
 
