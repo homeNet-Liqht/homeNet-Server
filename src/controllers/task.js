@@ -1,4 +1,4 @@
-const { uploadImages } = require("../config/firebase/storage");
+const { uploadImages, uploadImage } = require("../config/firebase/storage");
 const {
   checkIsInAGroup,
   checkIsInAssignerGroup,
@@ -282,16 +282,21 @@ const taskController = {
 
   uploadEditImage: async (req, res) => {
     try {
+      console.log(req.files);
       let downloadURLs = [];
-      if (req.files) {
+      console.log(req.files.image.length);
+      if (req.files && req.files.image.length > 1) {
         downloadURLs = await uploadImages(req.files);
       }
+      if (req.files && req.files.image.length < 2) {
+        downloadURLs = await uploadImage(req.files)
+      }
       console.log(downloadURLs);
-      return res.status(201).json({code: 201, data: downloadURLs})
+      return res.status(201).json({ code: 201, data: downloadURLs });
     } catch (error) {
-      return res.status(500).json({code: 500, data: error.message})
+      return res.status(500).json({ code: 500, data: error.message });
     }
-  }
+  },
 };
 
 module.exports = taskController;
