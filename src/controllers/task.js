@@ -281,7 +281,7 @@ const taskController = {
   },
 
   uploadEditImage: async (req, res) => {
-    console.log(req.files);
+    console.log(req.files.image);
     try {
       if (!req.files)
         return res
