@@ -251,6 +251,7 @@ const taskController = {
           .json({ code: 200, data: "Task updated successfully" });
       }
     } catch (error) {
+      console.log(error.message);
       res.status(500).json({ code: 500, data: error.message });
     }
   },
