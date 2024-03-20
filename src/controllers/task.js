@@ -284,12 +284,11 @@ const taskController = {
     try {
       console.log(req.files);
       let downloadURLs = [];
-      console.log(req.files.image.length);
       if (req.files && req.files.image.length > 1) {
         downloadURLs = await uploadImages(req.files);
       }
-      if (req.files && req.files.image.length < 2) {
-        downloadURLs = await uploadImage(req.files)
+      if (req.files && req.files.image.length == 1) {
+        downloadURLs = await uploadImage(req.files.image[0])
       }
       console.log(downloadURLs);
       return res.status(201).json({ code: 201, data: downloadURLs });
