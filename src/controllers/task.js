@@ -282,7 +282,7 @@ const taskController = {
 
   uploadEditImage: async (req, res) => {
     try {
-      console.log(req);
+      if (!req.files) return res.status(400).json({code: 400, data: "You need to choose an image"})
       let downloadURLs = [];
       if (req.files && req.files.image.length > 1) {
         downloadURLs = await uploadImages(req.files);
