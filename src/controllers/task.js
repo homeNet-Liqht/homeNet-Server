@@ -177,6 +177,7 @@ const taskController = {
   },
 
   edit: async (req, res) => {
+    console.log(req.body.assignees); 
     try {
       const theTask = await task.findById(req.params.tid);
 
@@ -196,7 +197,7 @@ const taskController = {
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
-      const assignees = req.body.assignees.split(",");
+      const assignees = (req.body.assignees).split(",");
       const promises = assignees.map(async (assignee) => {
         const isInAGroup = await checkIsInAssignerGroup(
           req.idDecoded,
