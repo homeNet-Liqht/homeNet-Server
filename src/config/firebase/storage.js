@@ -28,7 +28,7 @@ const uploadImage = async (imageFile) => {
     );
   }
 
-  const sanitizedFilename = imageFile[0].originalname
+  const sanitizedFilename = imageFile.originalname
     .replace(/[^\x00-\x7F]/g, "")
     .replace(/\s/g, "");
   const storageRefFilename = ref(storage, `family-image/${sanitizedFilename}`);
@@ -36,7 +36,7 @@ const uploadImage = async (imageFile) => {
   return new Promise((resolve, reject) => {
     const uploadTask = uploadBytesResumable(
       storageRefFilename,
-      imageFile[0].buffer,
+      imageFile.buffer,
       metadata
     );
 
@@ -64,7 +64,6 @@ const uploadImage = async (imageFile) => {
   });
 };
 const uploadImages = async (imagesFiles) => {
-  console.log(imagesFiles);
   try {
     const downloadURLs = await Promise.all(
       imagesFiles.image.map(async (file) => {

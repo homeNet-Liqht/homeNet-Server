@@ -177,7 +177,7 @@ const taskController = {
   },
 
   edit: async (req, res) => {
-    console.log(req.body.assignees); 
+    console.log(req.body.assignees);
     try {
       const theTask = await task.findById(req.params.tid);
 
@@ -230,20 +230,16 @@ const taskController = {
           data: "The end time must be greater than the start time",
         });
       }
-      let downloadURLs = [];
-      if (req.files) {
-        downloadURLs = await uploadImages(req.files);
-      }
 
       const updatedTask = await task.findByIdAndUpdate(req.params.tid, {
-        assignees: assignees,
+        assignees: req.body.assignees,
         title: req.body.title,
         startTime: startTime,
         endTime: endTime,
         actualStartTime: startTime,
         actualEndTime: endTime,
         description: req.body.description,
-        photo: downloadURLs,
+        photo: req.body.photo,
       });
 
       if (updatedTask) {
