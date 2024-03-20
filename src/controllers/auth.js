@@ -114,7 +114,12 @@ const authController = {
         return res
           .status(404)
           .json({ code: 404, status: "Cannot find this email!" });
-      if (!user.password) return res.status(404).json("This email doesn't have a password, it may an google account, please try sign in with Google")
+      if (!user.password)
+        return res
+          .status(404)
+          .json(
+            "This email doesn't have a password, it may an google account, please try sign in with Google"
+          );
       const validPassword = bcrypt.compareSync(
         req.body.password,
         user.password
@@ -354,9 +359,7 @@ const authController = {
       const isExistingEmail = await User.findOne({ email: userInfo.email });
 
       if (isExistingEmail) {
-        await User.findByIdAndUpdate(isExistingEmail.id, {
-          ...userInfo,
-        });
+
         const accessToken = helpers.generateAccessToken(isExistingEmail);
         const refreshToken = await helpers.generateRefreshToken(
           isExistingEmail

@@ -29,7 +29,7 @@ const notificationController = {
         req.body.type === "delete"
       ) {
         const isAssigner = await Task.findById(req.body.task_id);
-       
+
         if (!isAssigner || isAssigner.assigner != req.idDecoded) {
           return res.status(401).json({
             code: 401,
