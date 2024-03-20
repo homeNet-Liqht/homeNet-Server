@@ -197,7 +197,7 @@ const taskController = {
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
-      const promises = assignees.map(async (assignee) => {
+      const promises = req.body.assignees.map(async (assignee) => {
         const isInAGroup = await checkIsInAssignerGroup(
           req.idDecoded,
           assignee

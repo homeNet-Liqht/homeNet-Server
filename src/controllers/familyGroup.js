@@ -49,10 +49,10 @@ const familyGroupControllers = {
         return res.status(400).json({ code: 400, data: "No file provided" });
       }
 
-      const imageFile = req.file;
+    
       let downloadURL;
       try {
-        downloadURL = await uploadImage(imageFile);
+        downloadURL = await uploadImage(req.file);
       } catch (uploadError) {
         console.error("Error uploading file:", uploadError);
         return res.status(403).json({ code: 403, data: uploadError.message });
