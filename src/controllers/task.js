@@ -196,7 +196,24 @@ const taskController = {
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
+      const assignees = req.body.assignees.split(",");
+      const promises = assignees.map(async (assignee) => {
+        const isInAGroup = await checkIsInAssignerGroup(
+          req.idDecoded,
+          assignee
+        );
+        return isInAGroup;
+      });
 
+      const checkingAssignees = await Promise.all(promises);
+
+      console.log(checkingAssignees);
+      if (checkingAssignees.includes(false)) {
+        return res.status(403).json({
+          code: 403,
+          data: "There are some people who aren't in this group!",
+        });
+      }
 
       const startTime = new Date(req.body.startTime);
       const endTime = new Date(req.body.endTime);
@@ -219,7 +236,7 @@ const taskController = {
       }
 
       const updatedTask = await task.findByIdAndUpdate(req.params.tid, {
-        assignees: req.body.assignees,
+        assignees: assignees,
         title: req.body.title,
         startTime: startTime,
         endTime: endTime,
@@ -262,6 +279,19 @@ const taskController = {
       res.status(500).json({ code: 500, data: error.message });
     }
   },
+
+  uploadEditImage: async (req, res) => {
+    try {
+      let downloadURLs = [];
+      if (req.files) {
+        downloadURLs = await uploadImages(req.files);
+      }
+      console.log(downloadURLs);
+      return res.status(201).json({code: 201, data: downloadURLs})
+    } catch (error) {
+      return res.status(500).json({code: 500, data: error.message})
+    }
+  }
 };
 
 module.exports = taskController;

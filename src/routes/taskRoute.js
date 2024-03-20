@@ -12,7 +12,7 @@ taskRoute.post(
   upload.fields([{ name: "image" }]),
   taskController.create
 );
-
+taskRoute.post("/upload-edit-image", upload.fields([{ name: "image" }]), taskController.uploadEditImage);
 taskRoute.put(
   "/edit/:uid/:tid",
   upload.fields([{ name: "image" }]),
