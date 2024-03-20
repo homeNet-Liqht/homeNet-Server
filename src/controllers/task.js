@@ -125,7 +125,7 @@ const taskController = {
         );
         return isInAGroup;
       });
-
+    
       const checkingAssignees = await Promise.all(promises);
       if (checkingAssignees.includes(false)) {
         return res.status(403).json({
@@ -148,9 +148,8 @@ const taskController = {
           data: "The end time must be greater than the start time",
         });
       }
-
       let downloadURLs = [];
-      if (req.files && req.files.length > 0) {
+      if (req.files) {
         downloadURLs = await uploadImages(req.files);
       }
       console.log(downloadURLs);
