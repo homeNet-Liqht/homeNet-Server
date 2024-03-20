@@ -197,7 +197,11 @@ const taskController = {
           .status(403)
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
-      const assignees = req.body.assignees.split(",");
+      if (!req.body.assignees)
+      return res
+        .status(403)
+        .json({ code: 403, data: "Please choose at least one member" });
+    const assignees = req.body.assignees.split(",");
 
       const checkingAssignees = await Promise.all(
         assignees.map(async (assignee) => {
