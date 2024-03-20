@@ -281,11 +281,12 @@ const taskController = {
   },
 
   uploadEditImage: async (req, res) => {
+    console.log(req.files);
     try {
       if (!req.files)
         return res
           .status(400)
-          .json({ code: 400, data: "You need to choose an image" });
+          .json({ code: 400, data: "You need to choose at least an image" });
       let downloadURLs = [];
       if (req.files) {
         downloadURLs = await uploadImages(req.files);
