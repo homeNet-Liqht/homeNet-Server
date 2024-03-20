@@ -153,7 +153,7 @@ const taskController = {
       if (req.files && req.files.length > 0) {
         downloadURLs = await uploadImages(req.files);
       }
-
+      console.log(downloadURLs);
       const newTask = await task.create({
         assigner: req.idDecoded,
         assignees: assignees,
@@ -198,11 +198,11 @@ const taskController = {
           .json({ code: 403, data: "This user isn't in a group yet" });
       }
       if (!req.body.assignees)
-      return res
-        .status(403)
-        .json({ code: 403, data: "Please choose at least one member" });
-    const assignees = req.body.assignees.split(",");
-
+        return res
+          .status(403)
+          .json({ code: 403, data: "Please choose at least one member" });
+      const assignees = req.body.assignees.split(",");
+      console.log(assignees);
       const checkingAssignees = await Promise.all(
         assignees.map(async (assignee) => {
           const isInAGroup = await checkIsInAssignerGroup(
