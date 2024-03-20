@@ -206,6 +206,7 @@ const taskController = {
       });
     
       const checkingAssignees = await Promise.all(promises);
+      console.log(checkingAssignees);
       if (checkingAssignees.includes(false)) {
         return res.status(403).json({
           code: 403,
@@ -228,7 +229,10 @@ const taskController = {
           data: "The end time must be greater than the start time",
         });
       }
-      const downloadURLs = await uploadImages(req.files);
+      let downloadURLs = [];
+      if (req.files) {
+        downloadURLs = await uploadImages(req.files);
+      }
 
       const updatedTask = await task.findByIdAndUpdate(req.params.tid, {
         assignees: assignees,
