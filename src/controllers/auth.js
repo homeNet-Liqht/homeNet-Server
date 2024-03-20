@@ -359,9 +359,7 @@ const authController = {
       const isExistingEmail = await User.findOne({ email: userInfo.email });
 
       if (isExistingEmail) {
-        await User.findByIdAndUpdate(isExistingEmail.id, {
-          ...userInfo,
-        });
+
         const accessToken = helpers.generateAccessToken(isExistingEmail);
         const refreshToken = await helpers.generateRefreshToken(
           isExistingEmail
