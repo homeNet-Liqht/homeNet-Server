@@ -282,7 +282,7 @@ const taskController = {
 
   uploadEditImage: async (req, res) => {
     try {
-      console.log(req.files);
+      console.log(req);
       let downloadURLs = [];
       if (req.files && req.files.image.length > 1) {
         downloadURLs = await uploadImages(req.files);
