@@ -9,7 +9,11 @@ const generateLink = (baseUrl, id) => {
 const decodeLink = async (link) => {
   try {
     const decodedId = Buffer.from(link, "base64").toString("utf-8");
-    return decodedId;
+
+    const endIndex = decodedId.search(/[^a-zA-Z0-9]/);
+
+    const cleanId = endIndex !== -1 ? decodedId.slice(0, endIndex) : decodedId;
+    return cleanId;
   } catch (error) {
     console.error("Error decoding link:", error);
     throw error;
