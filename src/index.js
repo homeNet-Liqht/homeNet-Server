@@ -9,6 +9,8 @@ const route = require("./routes/index");
 const connect = require("./config/db/index");
 const { server } = require("./socket/socket");
 
+const notificationController = require("./controllers/notification");
+
 dotenv.config();
 const app = express();
 
@@ -34,9 +36,14 @@ app.use(
 
 route(app);
 
+const notiAlert = async () => {
+  setTimeout(() => {
 
+  })
+  await notificationController.alert();
+};
 
 const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });

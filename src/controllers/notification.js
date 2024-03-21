@@ -122,16 +122,23 @@ const notificationController = {
         },
       });
 
-      tasksInDay.filter((task) => task.endTime.getHours())
-
+      console.log(tasksInDay);
       if(!tasksInDay) return;
+      
+      const filteredTasks = tasksInDay.filter(task => {
+        const endTime = new Date(task.endTime);
+        return (
+          endTime.getHours() > getDateInfo.time ||
+          (endTime.getHours() === getDateInfo.time && endTime.getMinutes() > getDateInfo.minute)
+        ) && task.status === "pending";
+      });
 
-
-
+      console.log(filteredTasks);
     } catch (error) {
       console.log(error);
     }
   },
 };
+
 
 module.exports = notificationController;
