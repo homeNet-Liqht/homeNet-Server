@@ -15,7 +15,6 @@ taskRoute.post(
 taskRoute.post("/upload-edit-image", upload.fields([{ name: "image" }]), taskController.uploadEditImage);
 taskRoute.put(
   "/edit/:uid/:tid",
-  upload.fields([{ name: "image" }]),
   checkAuthorization,
   taskController.edit
 );

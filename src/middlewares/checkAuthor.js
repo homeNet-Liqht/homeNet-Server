@@ -5,6 +5,7 @@ const checkAuthorization = async (req, res, next) => {
     console.log(req.idDecoded);
 
     const user = await User.findById(req.idDecoded);
+    console.log(user, req.params.uid);
     if (!user)
       return res.status(404).json({ code: 404, data: "User was not found" });
 
