@@ -75,7 +75,7 @@ const familyGroupControllers = {
   join: async (req, res) => {
     try {
       const user = await User.findById(req.idDecoded);
-      const decodedLink = await decodeLink(req.params.gid);
+      const decodedLink = await decodeLink(req.body.groupId);
       const group = await familyGroup.findById(decodedLink);
       if (!group)
         return res

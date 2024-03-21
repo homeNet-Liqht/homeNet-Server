@@ -42,7 +42,7 @@ const taskSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["accepting", "pending", "finished", "cancelled"],
+    enum: ["accepting", "pending", "finished", "missing"],
     default: "accepting",
   },
   photo: [{ type: String }],

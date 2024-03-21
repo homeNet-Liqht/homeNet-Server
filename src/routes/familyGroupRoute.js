@@ -14,7 +14,7 @@ familyGroupRoute.post(
 );
 
 familyGroupRoute.post("/generate", familyGroupControllers.generateJoinLink);
-familyGroupRoute.post("/join/:gid", familyGroupControllers.join);
+familyGroupRoute.post("/join", familyGroupControllers.join);
 familyGroupRoute.put(
   "/host-edit/:uid",
   checkAuthorization,

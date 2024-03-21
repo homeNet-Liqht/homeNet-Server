@@ -7,18 +7,21 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const route = require("./routes/index");
 const connect = require("./config/db/index");
+const { server } = require("./socket/socket");
 
 dotenv.config();
 const app = express();
+
 connect();
 
-app.use(morgan("dev")); // specifying the morgan logging format
+app.use(morgan("dev"));
 app.use(
   cors({
     credentials: true,
-    origin: "*", // allow requests from all origins, you might want to change this in a production environment
+    origin: "*",
   })
 );
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
 app.use(express.json());
@@ -28,9 +31,12 @@ app.use(
     extended: true,
   })
 );
+
 route(app);
 
+
+
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });

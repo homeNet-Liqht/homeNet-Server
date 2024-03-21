@@ -57,7 +57,23 @@ const userSchema = new Schema({
     type: Date,
     default: null,
   },
+  location: {
+    type: {
+      type: String,
+      default: "Point",
+    },
+    coordinates: {
+      type: [Number],
+      default: [0, 0],
+    },
+  },
+  socketId: {
+    type: String,
+    default: null,
+  },
 });
+
+userSchema.index({ location: "2dsphere" });
 
 const User = mongoose.model("User", userSchema);
 

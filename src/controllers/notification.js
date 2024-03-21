@@ -4,7 +4,6 @@ const Task = require("../models/task");
 const FamilyGroup = require("../models/familyGroup");
 const { sendNotification } = require("../utils/sendingNoti");
 const notificationContain = require("../utils/notificationText");
-const task = require("../models/task");
 const notificationController = {
   sending: async (req, res) => {
     try {
@@ -100,6 +99,37 @@ const notificationController = {
     } catch (error) {
       console.error("Error sending notification:", error);
       return res.status(500).json({ code: 500, data: "Server error" });
+    }
+  },
+  alert: async () => {
+    try {
+      const currentDay = new Date();
+      const getDateInfo = {
+        year: currentDay.getFullYear(),
+        month: currentDay.getMonth() + 1,
+        day: currentDay.getDate(),
+        time: currentDay.getHours(),
+        minute: currentDay.getMinutes()
+      };
+
+      const tasksInDay = await Task.find({
+        $expr: {
+          $and: [
+            { $eq: [{ $year: "$endTime" }, getDateInfo.year] },
+            { $eq: [{ $month: "$endTime" }, getDateInfo.month] },
+            { $eq: [{ $dayOfMonth: "$endTime" }, getDateInfo.day] },
+          ],
+        },
+      });
+
+      tasksInDay.filter((task) => task.endTime.getHours())
+
+      if(!tasksInDay) return;
+
+
+
+    } catch (error) {
+      console.log(error);
     }
   },
 };
