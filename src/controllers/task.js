@@ -52,8 +52,8 @@ const taskController = {
   },
   getTasks: async (req, res) => {
     try {
-      let lastDataIndex = parseInt(req.query.lastDataIndex);
-      const limit = 5;
+      let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
+      const limit = 3;
 
       const query = {
         $or: [
@@ -73,7 +73,9 @@ const taskController = {
       }
 
       const remainingTasks = totalTasks - lastDataIndex;
+      console.log(remainingTasks);
       const fetchLimit = Math.min(limit, remainingTasks);
+      console.log(fetchLimit);
       const tasks = await task
         .find(query)
         .sort({ startTime: -1 })
