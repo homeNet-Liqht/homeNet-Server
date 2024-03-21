@@ -32,8 +32,8 @@ const familyGroupControllers = {
 
       const isMember = await checkIsInAGroup(req.idDecoded);
       if (isMember) {
-        return res.status(403).json({
-          code: 403,
+        return res.status(404).json({
+          code: 404,
           data: "This user is already a member in a group",
         });
       }
@@ -55,7 +55,7 @@ const familyGroupControllers = {
         downloadURL = await uploadImage(req.file);
       } catch (uploadError) {
         console.error("Error uploading file:", uploadError);
-        return res.status(403).json({ code: 403, data: uploadError.message });
+        return res.status(404).json({ code: 404, data: uploadError.message });
       }
 
       const newFamilyGroup = await familyGroup.create({
@@ -84,8 +84,8 @@ const familyGroupControllers = {
       const isUserInGroup = await checkIsInAGroup(user.id);
       if (isUserInGroup)
         return res
-          .status(403)
-          .json({ code: 403, data: "This user is already in a group" });
+          .status(404)
+          .json({ code: 404, data: "This user is already in a group" });
 
       await group.members.push(user.id);
 

@@ -41,8 +41,8 @@ const taskController = {
 
         return res.status(200).json({ code: 200, data: responseData });
       } else {
-        return res.status(403).json({
-          code: 403,
+        return res.status(402).json({
+          code: 402,
           data: "You are not authorized to access this task!",
         });
       }
@@ -109,14 +109,14 @@ const taskController = {
       console.log(checkingAssigner);
       if (!checkingAssigner) {
         return res
-          .status(403)
-          .json({ code: 403, data: "This user isn't in a group yet" });
+          .status(400)
+          .json({ code: 400, data: "This user isn't in a group yet" });
       }
 
       if (!req.body.assignees)
         return res
-          .status(403)
-          .json({ code: 403, data: "Please choose at least one member" });
+          .status(400)
+          .json({ code: 400, data: "Please choose at least one member" });
       const assignees = req.body.assignees.split(",");
       const promises = assignees.map(async (assignee) => {
         const isInAGroup = await checkIsInAssignerGroup(
@@ -128,8 +128,8 @@ const taskController = {
 
       const checkingAssignees = await Promise.all(promises);
       if (checkingAssignees.includes(false)) {
-        return res.status(403).json({
-          code: 403,
+        return res.status(400).json({
+          code: 400,
           data: "There are some people who aren't in this group!",
         });
       }
@@ -195,8 +195,8 @@ const taskController = {
       const checkingAssigner = await checkIsInAGroup(req.userData._id);
       if (!checkingAssigner) {
         return res
-          .status(403)
-          .json({ code: 403, data: "This user isn't in a group yet" });
+          .status(400)
+          .json({ code: 400, data: "This user isn't in a group yet" });
       }
       const promises = req.body.assignees.map(async (assignee) => {
         const isInAGroup = await checkIsInAssignerGroup(
@@ -210,8 +210,8 @@ const taskController = {
 
       console.log(checkingAssignees);
       if (checkingAssignees.includes(false)) {
-        return res.status(403).json({
-          code: 403,
+        return res.status(400).json({
+          code: 400,
           data: "There are some people who aren't in this group!",
         });
       }

@@ -36,10 +36,11 @@ app.use(
 
 route(app);
 
-const notiAlert = async () => {
-  setTimeout(() => {
+// setTimeout(() => {
+//   notiAlert();
+// }, 3000);
 
-  })
+const notiAlert = async () => {
   await notificationController.alert();
 };
 
