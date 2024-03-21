@@ -52,8 +52,8 @@ const taskController = {
   },
   getTasks: async (req, res) => {
     try {
-      let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
-      const limit = 3;
+      let lastDataIndex = parseInt(req.query.lastDataIndex);
+      const limit = 5;
 
       const query = {
         $or: [
@@ -73,12 +73,10 @@ const taskController = {
       }
 
       const remainingTasks = totalTasks - lastDataIndex;
-      console.log(remainingTasks);
       const fetchLimit = Math.min(limit, remainingTasks);
-      console.log(fetchLimit);
       const tasks = await task
         .find(query)
-        .sort({ _id: -1 })
+        .sort({ startTime: -1 })
         .populate("assigner", "_id name photo")
         .populate("assignees", "_id name photo")
         .skip(lastDataIndex)
@@ -186,6 +184,7 @@ const taskController = {
           code: 404,
           data: "Cannot find this task, please try again later!",
         });
+        console.log(theTask);
       if (req.userData.id != theTask.assigner) {
         return res
           .status(402)
