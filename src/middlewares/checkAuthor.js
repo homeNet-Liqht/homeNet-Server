@@ -5,15 +5,14 @@ const checkAuthorization = async (req, res, next) => {
     console.log(req.idDecoded);
 
     const user = await User.findById(req.idDecoded);
-    console.log(user, req.params.uid);
     if (!user)
       return res.status(404).json({ code: 404, data: "User was not found" });
 
-    if (user.id != req.params.uid)
+    if (user._id != req.params.uid)
       return res
         .status(403)
         .json({ code: 403, data: "You are not allow to do that" });
-
+    console.log(user._id == req.params.uid);
     req.userData = user;
 
     next();
