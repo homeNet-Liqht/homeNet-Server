@@ -103,15 +103,15 @@ const notificationController = {
   },
   alert: async () => {
     try {
-      const currentDay = new Date();
+    const currentDate = new Date();
       const getDateInfo = {
-        year: currentDay.getFullYear(),
-        month: currentDay.getMonth() + 1,
-        day: currentDay.getDate(),
-        time: currentDay.getHours(),
-        minute: currentDay.getMinutes()
+        year: currentDate.getFullYear(),
+        month: currentDate.getMonth() + 1,
+        day: currentDate.getDate(),
+        time: currentDate.getHours(),
+        minute: currentDate.getMinutes()
       };
-
+      console.log(getDateInfo);
       const tasksInDay = await Task.find({
         $expr: {
           $and: [

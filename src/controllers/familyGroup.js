@@ -78,7 +78,8 @@ const familyGroupControllers = {
       const parts = req.body.groupId.split("/");
       const lastIndex = parts.length - 1;
       const decodedLink = await decodeLink(parts[lastIndex]);
-      console.log(decodedLink);
+
+      
       const group = await familyGroup.findById(decodedLink);
       if (!group)
         return res
