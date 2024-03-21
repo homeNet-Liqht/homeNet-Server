@@ -8,10 +8,13 @@ const checkAuthorization = async (req, res, next) => {
     if (!user)
       return res.status(404).json({ code: 404, data: "User was not found" });
 
-    if (user._id != req.params.uid)
+    if (user.id != req.params.uid){
+      console.log("wrong");
       return res
         .status(403)
         .json({ code: 403, data: "You are not allow to do that" });
+    }
+
     console.log(user._id == req.params.uid);
     req.userData = user;
 
