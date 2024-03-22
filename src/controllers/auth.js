@@ -158,6 +158,9 @@ const authController = {
           updated_at,
           ...others
         } = user._doc;
+
+        io.emit('connect', { userId: user._id, email: user.email });
+
         return res.status(200).json({
           code: 200,
           ...others,

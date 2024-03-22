@@ -123,7 +123,6 @@ const notificationController = {
         },
       });
 
-      console.log(tasksInDay);
       if (!tasksInDay) return;
 
       const filteredTasks = tasksInDay.filter((task) => {
@@ -136,7 +135,7 @@ const notificationController = {
           task.status === "accepting"
         );
       });
-
+      console.log(filteredTasks);
       const updateTaskStatus = filteredTasks.map(async (task) => {
         if (task.endTime > Date.now()) {
           await Task.findByIdAndUpdate(task._id, {
