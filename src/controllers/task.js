@@ -52,6 +52,18 @@ const taskController = {
   },
   getTaskById: async (req, res) => {
     try {
+      const getTask = await task.find({ assignees: { $in: [req.params.uid] } }).sort({startTime: -1});
+      if (!getTask)
+        return res
+          .status(404)
+          .json({ code: 404, data: "User doesn't have any task" });
+      return res.status(200).json({ code: 200, data: getTask });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error });
+    }
+  },
+  currentUserTask: async (req, res) => {
+    try {
       const getTask = await task.find({ assignees: { $in: [req.idDecoded] } }).sort({startTime: -1});
       if (!getTask)
         return res
