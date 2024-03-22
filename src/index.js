@@ -1,18 +1,33 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
+
 const route = require("./routes/index");
 const connect = require("./config/db/index");
-const { server } = require("./socket/socket");
-
 const notificationController = require("./controllers/notification");
 
 dotenv.config();
 const app = express();
+const server = http.createServer(app); // Create HTTP server using Express
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connect", (socket) => {
+  console.log(socket.id);
+  console.log("A user connected");
+
+  // Call locationUpdate function and pass the socket instance
+  locationUpdate(socket);
+});
 
 connect();
 
@@ -36,6 +51,7 @@ app.use(
 
 route(app);
 
+// Uncomment the following code if you want to trigger notifications
 // setTimeout(() => {
 //   notiAlert();
 // }, 3000);
@@ -45,6 +61,6 @@ const notiAlert = async () => {
 };
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });

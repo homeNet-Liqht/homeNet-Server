@@ -1,8 +1,11 @@
+const express = require("express");
+const http = require("http");
 const { Server } = require("socket.io");
-const { createServer } = require("http");
 const locationUpdate = require("./uploadLocation");
 
-const server = createServer();
+
+const app = express();
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",

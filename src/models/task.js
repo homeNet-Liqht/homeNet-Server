@@ -56,30 +56,7 @@ const taskSchema = new Schema({
   },
 });
 
-function convertToVietnamTime(date) {
-  return moment(date).tz("Asia/Ho_Chi_Minh").toDate();
-}
 
-taskSchema.pre("save", function (next) {
-  if (!this.isNew) {
-    this.updated_at = new Date();
-  }
-
-  if (this.startTime) {
-    this.startTime = convertToVietnamTime(this.startTime);
-  }
-  if (this.endTime) {
-    this.endTime = convertToVietnamTime(this.endTime);
-  }
-  if (this.actualStartTime) {
-    this.actualStartTime = convertToVietnamTime(this.actualStartTime);
-  }
-  if (this.actualEndTime) {
-    this.actualEndTime = convertToVietnamTime(this.actualEndTime);
-  }
-
-  next();
-});
 
 const task = mongoose.model("Task", taskSchema);
 
