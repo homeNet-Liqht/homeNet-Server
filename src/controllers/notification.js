@@ -106,12 +106,13 @@ const notificationController = {
     try {
       const currentDate = new Date();
       const getDateInfo = {
-        year: currentDate.getFullYear(),
-        month: currentDate.getMonth() + 1,
-        day: currentDate.getDate(),
-        time: currentDate.getHours(),
-        minute: currentDate.getMinutes(),
+        year: currentDate.getUTCFullYear(),
+        month: currentDate.getUTCMonth() + 1,
+        day: currentDate.getUTCDate(),
+        time: currentDate.getUTCHours(),
+        minute: currentDate.getUTCMinutes(),
       };
+      
       console.log(getDateInfo);
       const tasksInDay = await Task.find({
         $expr: {
