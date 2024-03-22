@@ -60,18 +60,18 @@ const notificationController = {
         const taskObj = await Task.findById(req.body.task_id);
         taskTitle = taskObj ? taskObj.title : "";
       }
-      const sendingMessage = notificationContain(
-        req.body.type,
-        sender.name,
-        receivers,
-        taskTitle
-      );
 
       console.log("Send FCM Token");
       for (const assigneeId of receivers) {
         const assignee = await User.findById(assigneeId);
         if (assignee && assignee.fcmToken && assignee.fcmToken.length > 0) {
           for (const token of assignee.fcmToken) {
+            const sendingMessage = notificationContain(
+              req.body.type,
+              sender.name,
+              assignee.name,
+              taskTitle
+            );
             await sendNotification(token, sendingMessage);
           }
         }
@@ -101,15 +101,16 @@ const notificationController = {
       return res.status(500).json({ code: 500, data: "Server error" });
     }
   },
+
   alert: async () => {
     try {
-    const currentDate = new Date();
+      const currentDate = new Date();
       const getDateInfo = {
         year: currentDate.getFullYear(),
         month: currentDate.getMonth() + 1,
         day: currentDate.getDate(),
         time: currentDate.getHours(),
-        minute: currentDate.getMinutes()
+        minute: currentDate.getMinutes(),
       };
       console.log(getDateInfo);
       const tasksInDay = await Task.find({
@@ -123,22 +124,56 @@ const notificationController = {
       });
 
       console.log(tasksInDay);
-      if(!tasksInDay) return;
-      
-      const filteredTasks = tasksInDay.filter(task => {
+      if (!tasksInDay) return;
+
+      const filteredTasks = tasksInDay.filter((task) => {
         const endTime = new Date(task.endTime);
         return (
-          endTime.getHours() > getDateInfo.time ||
-          (endTime.getHours() === getDateInfo.time && endTime.getMinutes() > getDateInfo.minute)
-        ) && task.status === "pending";
+          (endTime.getHours() > getDateInfo.time ||
+            (endTime.getHours() === getDateInfo.time &&
+              endTime.getMinutes() > getDateInfo.minute)) &&
+          task.status === "pending" &&
+          task.status === "accepting"
+        );
       });
 
-      console.log(filteredTasks);
+      const updateTaskStatus = filteredTasks.map(async (task) => {
+        if (task.endTime > Date.now()) {
+          await Task.findByIdAndUpdate(task._id, {
+            $set: { status: "missing" },
+          });
+        }
+
+        if (task.endTime > Date.now() - 5) {
+          task.assignees.map(async (assignee) => {
+            const assignees = await User.findById(assignee._id);
+            assignees.map(async (assignee) => {
+              if (
+                assignee &&
+                assignee.fcmToken &&
+                assignee.fcmToken.length > 0
+              ) {
+                for (const token of assignee.fcmToken) {
+                  const sendingMessage = notificationContain(
+                    "time",
+                    task.assigner,
+                    assignee.id,
+                    task.title
+                  );
+
+                  await sendNotification(token, sendingMessage);
+                }
+              }
+            });
+          });
+        }
+      });
+
+      console.log(updateTaskStatus);
     } catch (error) {
       console.log(error);
     }
   },
 };
-
 
 module.exports = notificationController;

@@ -50,6 +50,18 @@ const taskController = {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+  getTaskById: async (req, res) => {
+    try {
+      const getTask = await task.find({ assignees: { $in: [req.idDecoded] } }).sort({startTime: -1});
+      if (!getTask)
+        return res
+          .status(404)
+          .json({ code: 404, data: "User doesn't have any task" });
+      return res.status(200).json({ code: 200, data: getTask });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error });
+    }
+  },
   getTasks: async (req, res) => {
     try {
       let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
@@ -186,7 +198,7 @@ const taskController = {
           code: 404,
           data: "Cannot find this task, please try again later!",
         });
-        console.log(theTask);
+      console.log(theTask);
       if (req.userData.id != theTask.assigner) {
         return res
           .status(402)
