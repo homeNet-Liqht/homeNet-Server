@@ -10,8 +10,8 @@ const familyGroupSchema = new Schema({
   photo: {
     type: String,
   },
-  host: { type: Schema.Types.ObjectId, ref: "Users" },
-  members: [{ type: Schema.Types.ObjectId, ref: "Users" }],
+  host: { type: Schema.Types.ObjectId, ref: "User" },
+  members: [{ type: Schema.Types.ObjectId, ref: "User" }],
   created_at: {
     type: Date,
     default: Date.now,

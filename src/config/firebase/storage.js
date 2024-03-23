@@ -11,11 +11,15 @@ firebaseApp.initializeApp(firebaseConfig.firebaseConfig);
 const storage = getStorage();
 
 const uploadImage = async (imageFile) => {
-  const acceptedEndPoints = ["image/png", "image/jpg", "image/jpeg"];
+  const acceptedEndPoints = [
+    "image/heif",
+    "image/png",
+    "image/jpg",
+    "image/jpeg",
+  ];
   const metadata = {
     contentType: imageFile.mimetype,
   };
-
   if (!acceptedEndPoints.includes(metadata.contentType)) {
     return Promise.reject(
       new Error(
@@ -60,11 +64,15 @@ const uploadImage = async (imageFile) => {
   });
 };
 const uploadImages = async (imagesFiles) => {
-  console.log(imagesFiles);
   try {
     const downloadURLs = await Promise.all(
       imagesFiles.image.map(async (file) => {
-        const acceptedEndPoints = ["image/png", "image/jpg", "image/jpeg"];
+        const acceptedEndPoints = [
+          "image/heif",
+          "image/png",
+          "image/jpg",
+          "image/jpeg",
+        ];
         const metadata = {
           contentType: file.mimetype,
         };

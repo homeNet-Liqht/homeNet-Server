@@ -7,15 +7,19 @@ const User = require("../models/user");
 const familyGroupControllers = {
   getFamilyGroup: async (req, res) => {
     try {
-      const group = await checkIsInAGroup(req.idDecoded);
+      const isInAGroup = await checkIsInAGroup(req.idDecoded);
 
-      if (!group) {
+      if (!isInAGroup) {
         return res
           .status(404)
           .json({ code: 404, data: "Family group not found" });
       }
 
-      res.status(200).json({ code: 200, data: group });
+      const group = await familyGroup
+        .findOne({ members: req.idDecoded })
+        .populate({ path: "members", select: "_id name photo" });
+
+        res.status(200).json({ code: 200, data: group });
     } catch (error) {
       console.error("Error fetching family group:", error);
       res.status(500).json({ code: 500, data: "Server error" });
@@ -28,8 +32,8 @@ const familyGroupControllers = {
 
       const isMember = await checkIsInAGroup(req.idDecoded);
       if (isMember) {
-        return res.status(403).json({
-          code: 403,
+        return res.status(404).json({
+          code: 404,
           data: "This user is already a member in a group",
         });
       }
@@ -45,13 +49,13 @@ const familyGroupControllers = {
         return res.status(400).json({ code: 400, data: "No file provided" });
       }
 
-      const imageFile = req.file;
+    
       let downloadURL;
       try {
-        downloadURL = await uploadImage(imageFile);
+        downloadURL = await uploadImage(req.file);
       } catch (uploadError) {
         console.error("Error uploading file:", uploadError);
-        return res.status(403).json({ code: 403, data: uploadError.message });
+        return res.status(404).json({ code: 404, data: uploadError.message });
       }
 
       const newFamilyGroup = await familyGroup.create({
@@ -71,7 +75,11 @@ const familyGroupControllers = {
   join: async (req, res) => {
     try {
       const user = await User.findById(req.idDecoded);
-      const decodedLink = await decodeLink(req.params.gid);
+      const parts = req.body.groupId.split("/");
+      const lastIndex = parts.length - 1;
+      const decodedLink = await decodeLink(parts[lastIndex]);
+
+      
       const group = await familyGroup.findById(decodedLink);
       if (!group)
         return res
@@ -80,8 +88,8 @@ const familyGroupControllers = {
       const isUserInGroup = await checkIsInAGroup(user.id);
       if (isUserInGroup)
         return res
-          .status(403)
-          .json({ code: 403, data: "This user is already in a group" });
+          .status(404)
+          .json({ code: 404, data: "This user is already in a group" });
 
       await group.members.push(user.id);
 
@@ -99,7 +107,7 @@ const familyGroupControllers = {
   hostEdit: async (req, res) => {
     try {
       const newHost = await User.findById(req.body.newHost);
-      const isInTheFam = await checkIsInAGroup(req.idDecoded)
+      const isInTheFam = await checkIsInAGroup(req.idDecoded);
       if (!isInTheFam)
         return res
           .status(401)

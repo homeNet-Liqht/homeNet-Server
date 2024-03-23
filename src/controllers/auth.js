@@ -22,8 +22,8 @@ const authController = {
 
       if (!password)
         return res
-          .status(403)
-          .json({ code: 403, data: "Password is a required field" });
+          .status(400)
+          .json({ code: 400, data: "Password is a required field" });
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -109,12 +109,18 @@ const authController = {
       const user = await User.findOne({
         email: req.body.email,
       });
+
       if (!user)
         return res
           .status(404)
           .json({ code: 404, status: "Cannot find this email!" });
-
-      const validPassword = await bcrypt.compare(
+      if (!user.password)
+        return res
+          .status(404)
+          .json(
+            "This email doesn't have a password, it may an google account, please try sign in with Google"
+          );
+      const validPassword = bcrypt.compareSync(
         req.body.password,
         user.password
       );
@@ -123,8 +129,8 @@ const authController = {
         return res.status(400).json({ code: 400, status: "Wrong password!" });
 
       if (!user.is_active)
-        return res.status(403).json({
-          code: 403,
+        return res.status(404).json({
+          code: 404,
           status:
             "This account isn't verify yet, please verify it before access to our application",
         });
@@ -132,7 +138,6 @@ const authController = {
       if (user && validPassword) {
         const accessToken = helpers.generateAccessToken(user);
         const refreshToken = await helpers.generateRefreshToken(user);
-        console.log(refreshToken);
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
           secure: false,
@@ -153,6 +158,9 @@ const authController = {
           updated_at,
           ...others
         } = user._doc;
+
+        io.emit('connect', { userId: user._id, email: user.email });
+
         return res.status(200).json({
           code: 200,
           ...others,
@@ -211,7 +219,7 @@ const authController = {
             return res.status(401).json({ code: 401, data: "User not found" });
           }
           const newAccessToken = helpers.generateAccessToken(userDb);
-          const newRefreshToken = helpers.generateRefreshToken(userDb);
+          const newRefreshToken = await helpers.generateRefreshToken(userDb);
 
           const updateRefreshToken = await User.findOneAndUpdate(
             {
@@ -240,7 +248,7 @@ const authController = {
 
           res.status(200).json({
             code: 200,
-            data: "Sign in successfully",
+            data: "Reset successfully",
           });
         }
       );
@@ -307,8 +315,8 @@ const authController = {
         });
 
       if (user.is_active)
-        return res.status(403).json({
-          code: 403,
+        return res.status(404).json({
+          code: 404,
           error: "This user is already active",
         });
       console.log(user);
@@ -354,14 +362,11 @@ const authController = {
       const isExistingEmail = await User.findOne({ email: userInfo.email });
 
       if (isExistingEmail) {
-        await User.findByIdAndUpdate(isExistingEmail.id, {
-          ...userInfo,
-        });
+
         const accessToken = helpers.generateAccessToken(isExistingEmail);
         const refreshToken = await helpers.generateRefreshToken(
           isExistingEmail
         );
-        console.log(refreshToken);
 
         await res.cookie("refreshtoken", refreshToken, {
           httpOnly: true,
