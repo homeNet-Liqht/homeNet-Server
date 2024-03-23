@@ -15,7 +15,8 @@ const checkAuthentication = async (req, res, next) => {
         data: "Your token was not found",
       });
 
-    if (decoded.exp * 1000 < Date.now())
+
+      if (decoded.exp * 1000 < Date.now())
       return res
         .status(403)
         .json({ code: 403, data: "Your token was expired" });

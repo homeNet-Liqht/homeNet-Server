@@ -144,7 +144,7 @@ const userController = {
         downloadURL = await uploadImage(req.file);
       } catch (uploadError) {
         console.error("Error uploading file:", uploadError);
-        return res.status(403).json({ code: 403, data: uploadError.message });
+        return res.status(401).json({ code: 401, data: uploadError.message });
       }
 
       await User.findByIdAndUpdate(user.id, {

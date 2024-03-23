@@ -20,7 +20,6 @@ const uploadImage = async (imageFile) => {
   const metadata = {
     contentType: imageFile.mimetype,
   };
-
   if (!acceptedEndPoints.includes(metadata.contentType)) {
     return Promise.reject(
       new Error(
@@ -65,7 +64,6 @@ const uploadImage = async (imageFile) => {
   });
 };
 const uploadImages = async (imagesFiles) => {
-  console.log(imagesFiles);
   try {
     const downloadURLs = await Promise.all(
       imagesFiles.image.map(async (file) => {

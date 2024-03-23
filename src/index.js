@@ -8,17 +8,21 @@ const bodyParser = require("body-parser");
 const route = require("./routes/index");
 const connect = require("./config/db/index");
 
+const notificationController = require("./controllers/notification");
+
 dotenv.config();
 const app = express();
+
 connect();
 
-app.use(morgan("dev")); // specifying the morgan logging format
+app.use(morgan("dev"));
 app.use(
   cors({
     credentials: true,
-    origin: "*", // allow requests from all origins, you might want to change this in a production environment
+    origin: "*",
   })
 );
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
 app.use(express.json());
@@ -28,7 +32,16 @@ app.use(
     extended: true,
   })
 );
+
 route(app);
+
+setTimeout(() => {
+  notiAlert();
+}, 3000);
+
+const notiAlert = async () => {
+  await notificationController.alert();
+};
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

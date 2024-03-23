@@ -22,8 +22,8 @@ const authController = {
 
       if (!password)
         return res
-          .status(403)
-          .json({ code: 403, data: "Password is a required field" });
+          .status(400)
+          .json({ code: 400, data: "Password is a required field" });
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -129,8 +129,8 @@ const authController = {
         return res.status(400).json({ code: 400, status: "Wrong password!" });
 
       if (!user.is_active)
-        return res.status(403).json({
-          code: 403,
+        return res.status(404).json({
+          code: 404,
           status:
             "This account isn't verify yet, please verify it before access to our application",
         });
@@ -158,6 +158,9 @@ const authController = {
           updated_at,
           ...others
         } = user._doc;
+
+        io.emit('connect', { userId: user._id, email: user.email });
+
         return res.status(200).json({
           code: 200,
           ...others,
@@ -312,8 +315,8 @@ const authController = {
         });
 
       if (user.is_active)
-        return res.status(403).json({
-          code: 403,
+        return res.status(404).json({
+          code: 404,
           error: "This user is already active",
         });
       console.log(user);

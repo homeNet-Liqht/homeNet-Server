@@ -6,7 +6,6 @@ const { checkAuthorization } = require("../middlewares/checkAuthor");
 
 const familyGroupRoute = express.Router();
 
-familyGroupRoute.get("/", familyGroupControllers.getFamilyGroup);
 familyGroupRoute.post(
   "/create",
   upload.single("image"),
@@ -14,10 +13,11 @@ familyGroupRoute.post(
 );
 
 familyGroupRoute.post("/generate", familyGroupControllers.generateJoinLink);
-familyGroupRoute.post("/join/:gid", familyGroupControllers.join);
+familyGroupRoute.post("/join", familyGroupControllers.join);
 familyGroupRoute.put(
   "/host-edit/:uid",
   checkAuthorization,
   familyGroupControllers.hostEdit
 );
+familyGroupRoute.get("/", familyGroupControllers.getFamilyGroup);
 module.exports = familyGroupRoute;
