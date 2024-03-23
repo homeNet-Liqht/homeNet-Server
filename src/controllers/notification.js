@@ -112,7 +112,7 @@ const notificationController = {
         time: currentDate.getUTCHours(),
         minute: currentDate.getUTCMinutes(),
       };
-      
+
       console.log(getDateInfo);
       const tasksInDay = await Task.find({
         $expr: {
@@ -123,7 +123,6 @@ const notificationController = {
           ],
         },
       });
-
       if (!tasksInDay) return;
 
       const filteredTasks = tasksInDay.filter((task) => {

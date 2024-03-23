@@ -5,6 +5,7 @@ const { otpGenerated } = require("../utils/otp");
 const helpers = require("../helpers/jwt");
 const Email = require("../helpers/email");
 
+
 const authController = {
   signUp: async (req, res) => {
     try {
@@ -159,7 +160,6 @@ const authController = {
           ...others
         } = user._doc;
 
-        io.emit('connect', { userId: user._id, email: user.email });
 
         return res.status(200).json({
           code: 200,

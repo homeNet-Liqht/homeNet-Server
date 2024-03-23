@@ -7,8 +7,7 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const route = require("./routes/index");
 const connect = require("./config/db/index");
-
-const notificationController = require("./controllers/notification");
+const alert = require("./helpers/notificationTrigger");
 
 dotenv.config();
 const app = express();
@@ -40,7 +39,7 @@ setTimeout(() => {
 }, 3000);
 
 const notiAlert = async () => {
-  await notificationController.alert();
+  alert.alert();
 };
 
 const PORT = process.env.PORT || 8000;
