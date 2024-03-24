@@ -80,17 +80,18 @@ const notificationController = {
               type: req.body.type,
               message: sendingMessage,
             });
+            if (!newNotification) {
+              return res.status(400).json({
+                code: 400,
+                data: "Something went wrong, try again later!",
+              });
+            }
           }
         }
       }
   
 
-      if (!newNotification) {
-        return res.status(400).json({
-          code: 400,
-          data: "Something went wrong, try again later!",
-        });
-      }
+   
 
       return res.status(201).json({
         code: 201,
