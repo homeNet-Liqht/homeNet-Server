@@ -10,7 +10,7 @@ const familyGroupSchema = new Schema({
   photo: { type: String },
   host: { type: Schema.Types.ObjectId, ref: "User" },
   members: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  zones: [{type: Schema.Types.ObjectId, ref :"Zone"}],
+  zones: [{ type: Schema.Types.ObjectId, ref: "Zone" }],
   created_at: { type: Date, default: Date.now },
   dated_at: { type: Date, default: Date.now },
 });
