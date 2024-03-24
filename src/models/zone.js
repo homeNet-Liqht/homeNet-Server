@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const zoneSchema = new Schema({
-  creator: { type: Schema.Types.ObjectId, ref: "User"},
+  creator: { type: Schema.Types.ObjectId, ref: "User" },
   lat: { type: Number, default: 0 },
   long: { type: Number, default: 0 },
   radius: { type: Number, default: 0 },

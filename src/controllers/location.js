@@ -97,6 +97,10 @@ const locationController = {
         return res
           .status(400)
           .json({ code: 400, data: "Error create new zone!" });
+      if (!getFamily.zones) getFamily.zones = [];
+
+      getFamily.zones.push(newZone._id);
+      await getFamily.save();
 
       return res.status(200).json({ code: 200, data: newZone });
     } catch (error) {
@@ -148,7 +152,25 @@ const locationController = {
       }
       await Zone.findByIdAndDelete(req.params.zid);
 
-      return res.status(200).json({ code: 200, data: "Zone deleted successfully" });
+      return res
+        .status(200)
+        .json({ code: 200, data: "Zone deleted successfully" });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+  getZones: async (req, res) => {
+    try {
+      const familyMember = await familyGroup
+        .find({
+          members: { $in: [req.idDecoded] },
+        })
+        .populate("zones");
+      if (!familyMember)
+        return res
+          .status(404)
+          .json({ code: 404, data: "This member isn't in a family" });
+      return res.status(200).json({ code: 200, data: familyMember });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
