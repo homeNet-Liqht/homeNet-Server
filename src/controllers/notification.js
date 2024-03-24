@@ -14,14 +14,40 @@ const notificationController = {
           members: { $in: receivers },
         });
         if (receiver && receiver.length > 0) {
-          return res.status(404).json({
-            code: 404,
+          return res.status(40).json({
+            code: 401,
             data: "There is at least one person who has joined a family",
           });
         }
       }
 
-    
+      if (
+        req.body.type === "task" ||
+        req.body.type === "update" ||
+        req.body.type === "finish" ||
+        req.body.type === "delete"
+      ) {
+        const isAssigner = await Task.findById(req.body.task_id);
+
+        if (!isAssigner || isAssigner.assigner != req.idDecoded) {
+          return res.status(404).json({
+            code: 404,
+            data: "Sender isn't the assigner of this task",
+          });
+        }
+
+        const isInTask = await Task.findOne({
+          _id: req.body.task_id,
+          assignees: { $in: receivers },
+        });
+
+        if (!isInTask) {
+          return res.status(404).json({
+            code: 404,
+            data: "There is someone who isn't in this task",
+          });
+        }
+      }
 
       let taskTitle = "";
       if (
@@ -46,17 +72,18 @@ const notificationController = {
               taskTitle
             );
             await sendNotification(token, sendingMessage);
+            console.log("Send FCM Token success");
+
+            const newNotification = await Notification.create({
+              sender_id: req.idDecoded,
+              receiver_id: req.body.receivers,
+              type: req.body.type,
+              message: sendingMessage,
+            });
           }
         }
       }
-      console.log("Send FCM Token success");
-
-      const newNotification = await Notification.create({
-        sender_id: req.idDecoded,
-        receiver_id: req.body.receivers,
-        type: req.body.type,
-        message: JSON.stringify(sendingMessage),
-      });
+  
 
       if (!newNotification) {
         return res.status(400).json({
