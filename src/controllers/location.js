@@ -1,7 +1,14 @@
+const User = require("../models/user");
+
 const locationController = {
-  currentLocation: async (data) => {
-    console.log("Received location update:", data);
-    // Implement logic to update the current location based on the received data
+  currentLocationUpdate: async (data) => {
+    try {
+      // const updatedLocation = await User.findByIdAndUpdate(req.idDecoded, {
+      //   location: 
+      // })
+    } catch (error) {
+      
+    }
   },
 };
 

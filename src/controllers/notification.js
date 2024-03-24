@@ -102,77 +102,7 @@ const notificationController = {
     }
   },
 
-  alert: async () => {
-    try {
-      const currentDate = new Date();
-      const getDateInfo = {
-        year: currentDate.getUTCFullYear(),
-        month: currentDate.getUTCMonth() + 1,
-        day: currentDate.getUTCDate(),
-        time: currentDate.getUTCHours(),
-        minute: currentDate.getUTCMinutes(),
-      };
 
-      console.log(getDateInfo);
-      const tasksInDay = await Task.find({
-        $expr: {
-          $and: [
-            { $eq: [{ $year: "$endTime" }, getDateInfo.year] },
-            { $eq: [{ $month: "$endTime" }, getDateInfo.month] },
-            { $eq: [{ $dayOfMonth: "$endTime" }, getDateInfo.day] },
-          ],
-        },
-      });
-      if (!tasksInDay) return;
-
-      const filteredTasks = tasksInDay.filter((task) => {
-        const endTime = new Date(task.endTime);
-        return (
-          (endTime.getHours() > getDateInfo.time ||
-            (endTime.getHours() === getDateInfo.time &&
-              endTime.getMinutes() > getDateInfo.minute)) &&
-          task.status === "pending" &&
-          task.status === "accepting"
-        );
-      });
-      console.log(filteredTasks);
-      const updateTaskStatus = filteredTasks.map(async (task) => {
-        if (task.endTime > Date.now()) {
-          await Task.findByIdAndUpdate(task._id, {
-            $set: { status: "missing" },
-          });
-        }
-
-        if (task.endTime > Date.now() - 5) {
-          task.assignees.map(async (assignee) => {
-            const assignees = await User.findById(assignee._id);
-            assignees.map(async (assignee) => {
-              if (
-                assignee &&
-                assignee.fcmToken &&
-                assignee.fcmToken.length > 0
-              ) {
-                for (const token of assignee.fcmToken) {
-                  const sendingMessage = notificationContain(
-                    "time",
-                    task.assigner,
-                    assignee.id,
-                    task.title
-                  );
-
-                  await sendNotification(token, sendingMessage);
-                }
-              }
-            });
-          });
-        }
-      });
-
-      console.log(updateTaskStatus);
-    } catch (error) {
-      console.log(error);
-    }
-  },
 };
 
 module.exports = notificationController;
