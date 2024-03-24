@@ -6,6 +6,40 @@ const {
 const task = require("../models/task");
 const User = require("../models/user");
 const taskController = {
+  getTasksInDay: async (req, res) => {
+    try {
+      const { day } = req.body;
+      const taskInDay = await task.find({
+        startTime: {
+          $gte: new Date(`${day}T00:00:00`),
+          $lt: new Date(`${day}T23:59:59`),
+        },
+      });
+      if(!taskInDay) return res.status(404).json({code: 404, data: "No task on that day!"})
+      return res.status(200).json({code: 200, data: taskInDay})
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+
+  getTasksInDayWithCurrentUser: async (req, res) => {
+    try {
+      const { day } = req.body;
+      const taskInDay = await task.find({
+        startTime: {
+          $gte: new Date(`${day}T00:00:00`),
+          $lt: new Date(`${day}T23:59:59`),
+        },
+        $or: [{ assigner: req.idDecoded }, { assignees: req.idDecoded }],
+      });
+      if (!taskInDay)
+        return res.status(404).json({ code: 404, data: taskInDay });
+
+      return res.status(200).json({ code: 200, data: taskInDay });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
   getTask: async (req, res) => {
     try {
       const foundTask = await task.findById(req.params.tid);
@@ -52,7 +86,9 @@ const taskController = {
   },
   getTaskById: async (req, res) => {
     try {
-      const getTask = await task.find({ assignees: { $in: [req.params.uid] } }).sort({startTime: -1});
+      const getTask = await task
+        .find({ assignees: { $in: [req.params.uid] } })
+        .sort({ startTime: -1 });
       if (!getTask)
         return res
           .status(404)
@@ -64,7 +100,9 @@ const taskController = {
   },
   currentUserTask: async (req, res) => {
     try {
-      const getTask = await task.find({ assignees: { $in: [req.idDecoded] } }).sort({startTime: -1});
+      const getTask = await task
+        .find({ assignees: { $in: [req.idDecoded] } })
+        .sort({ startTime: -1 });
       if (!getTask)
         return res
           .status(404)
@@ -174,7 +212,7 @@ const taskController = {
       }
       let downloadURLs = [];
       console.log(req.files.image);
-      if (req.files.image ) {
+      if (req.files.image) {
         downloadURLs = await uploadImages(req.files);
       }
       console.log(downloadURLs);
