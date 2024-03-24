@@ -173,8 +173,8 @@ const taskController = {
         });
       }
       let downloadURLs = [];
-      console.log(req.files.image);
-      if (req.files && req.files.image.length > 0) {
+      console.log(req.files);
+      if (req.files ) {
         downloadURLs = await uploadImages(req.files);
       }
       console.log(downloadURLs);
