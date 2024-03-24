@@ -61,11 +61,10 @@ const notificationController = {
         taskTitle = taskObj ? taskObj.title : "";
       }
 
-      console.log("Send FCM Token");
       for (const assigneeId of receivers) {
         const assignee = await User.findById(assigneeId);
-        if (assignee && assignee.fcmToken && assignee.fcmToken.length > 0) {
-          for (const token of assignee.fcmToken) {
+        if (assignee && assignee.fcm_token && assignee.fcm_token.length > 0) {
+          for (const token of assignee.fcm_token) {
             const sendingMessage = notificationContain(
               req.body.type,
               sender.name,
