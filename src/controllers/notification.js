@@ -14,8 +14,8 @@ const notificationController = {
           members: { $in: receivers },
         });
         if (receiver && receiver.length > 0) {
-          return res.status(401).json({
-            code: 401,
+          return res.status(404).json({
+            code: 404,
             data: "There is at least one person who has joined a family",
           });
         }
@@ -30,8 +30,8 @@ const notificationController = {
         const isAssigner = await Task.findById(req.body.task_id);
 
         if (!isAssigner || isAssigner.assigner != req.idDecoded) {
-          return res.status(401).json({
-            code: 401,
+          return res.status(404).json({
+            code: 404,
             data: "Sender isn't the assigner of this task",
           });
         }
