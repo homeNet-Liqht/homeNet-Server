@@ -27,14 +27,7 @@ const notificationController = {
         req.body.type === "finish" ||
         req.body.type === "delete"
       ) {
-        const isAssigner = await Task.findById(req.body.task_id);
 
-        if (!isAssigner || isAssigner.assigner != req.idDecoded) {
-          return res.status(404).json({
-            code: 404,
-            data: "Sender isn't the assigner of this task",
-          });
-        }
 
         const isInTask = await Task.findOne({
           _id: req.body.task_id,
