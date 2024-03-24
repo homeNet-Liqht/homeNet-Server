@@ -110,8 +110,8 @@ const familyGroupControllers = {
       const isInTheFam = await checkIsInAGroup(req.idDecoded);
       if (!isInTheFam)
         return res
-          .status(401)
-          .json({ code: 401, data: "This user isn't in this family" });
+          .status(404)
+          .json({ code: 404, data: "This user isn't in this family" });
       if (!newHost)
         return res
           .status(404)

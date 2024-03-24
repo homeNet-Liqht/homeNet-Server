@@ -15,8 +15,11 @@ const taskController = {
           $lt: new Date(`${day}T23:59:59`),
         },
       });
-      if(!taskInDay) return res.status(404).json({code: 404, data: "No task on that day!"})
-      return res.status(200).json({code: 200, data: taskInDay})
+      if (!taskInDay)
+        return res
+          .status(404)
+          .json({ code: 404, data: "No task on that day!" });
+      return res.status(200).json({ code: 200, data: taskInDay });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
@@ -33,7 +36,7 @@ const taskController = {
         $or: [{ assigner: req.idDecoded }, { assignees: req.idDecoded }],
       });
       if (!taskInDay)
-        return res.status(404).json({ code: 404, data: taskInDay });
+        return res.status(404).json({ code: 404, data: "No task on that day!" });
 
       return res.status(200).json({ code: 200, data: taskInDay });
     } catch (error) {

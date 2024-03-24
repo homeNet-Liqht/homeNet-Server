@@ -4,6 +4,7 @@ const Task = require("../models/task");
 const FamilyGroup = require("../models/familyGroup");
 const { sendNotification } = require("../utils/sendingNoti");
 const notificationContain = require("../utils/notificationText");
+const notification = require("../models/notification");
 const notificationController = {
   sending: async (req, res) => {
     try {
@@ -20,8 +21,6 @@ const notificationController = {
           });
         }
       }
-
-
 
       let taskTitle = "";
       if (
@@ -63,9 +62,6 @@ const notificationController = {
           }
         }
       }
-  
-
-   
 
       return res.status(201).json({
         code: 201,
@@ -77,7 +73,18 @@ const notificationController = {
     }
   },
 
-
+  show: async (req, res) => {
+    try {
+      const notifications = notification.find({
+        receiver_id: { $in: [req.idDecoded] },
+      });
+      if (!notifications || notifications.length === 0)
+        return res
+          .status(404)
+          .json({ code: 404, data: "There are no notifications to show" });
+      return res.status(200).json({code: 200, data: notifications})
+    } catch (error) {}
+  },
 };
 
 module.exports = notificationController;
