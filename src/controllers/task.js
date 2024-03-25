@@ -5,25 +5,36 @@ const {
 } = require("../helpers/inGroup");
 const task = require("../models/task");
 const User = require("../models/user");
+const familyGroup = require("../models/familyGroup");
 const taskController = {
   getTasksInDay: async (req, res) => {
     try {
-      const { day } = req.body;
-      const taskInDay = await task.find({
-        startTime: {
-          $gte: new Date(`${day}T00:00:00`),
-          $lt: new Date(`${day}T23:59:59`),
-        },
-      });
-      if (!taskInDay)
-        return res
-          .status(404)
-          .json({ code: 404, data: "No task on that day!" });
-      return res.status(200).json({ code: 200, data: taskInDay });
+        const { day } = req.body;
+        const group = await familyGroup.findOne({
+            members: { $in: [req.idDecoded] },
+        });
+        const memberTask = await Promise.all(group.members.map(async (member) => {
+            return await task.find({
+                startTime: {
+                    $gte: new Date(`${day}T00:00:00`),
+                    $lt: new Date(`${day}T23:59:59`),
+                },
+                assignees: {$in: [member._id]}
+            });
+        }));
+
+        const tasksInDay = memberTask.flat();
+
+        if (tasksInDay.length === 0) {
+            return res.status(404).json({ code: 404, data: "No task on that day!" });
+        }
+
+        return res.status(200).json({ code: 200, data: tasksInDay });
     } catch (error) {
-      return res.status(500).json({ code: 500, data: error.message });
+        return res.status(500).json({ code: 500, data: error.message });
     }
-  },
+},
+
 
   getTasksInDayWithCurrentUser: async (req, res) => {
     try {
@@ -36,7 +47,9 @@ const taskController = {
         $or: [{ assigner: req.idDecoded }, { assignees: req.idDecoded }],
       });
       if (!taskInDay)
-        return res.status(404).json({ code: 404, data: "No task on that day!" });
+        return res
+          .status(404)
+          .json({ code: 404, data: "No task on that day!" });
 
       return res.status(200).json({ code: 200, data: taskInDay });
     } catch (error) {
