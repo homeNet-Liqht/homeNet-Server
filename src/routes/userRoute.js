@@ -22,7 +22,7 @@ userRoute.put(
   userController.editImage
 );
 userRoute.put(
-  "/update-fcmtoken",
+  "/update-fcmtoken/:uid",
   checkAuthentication,
   checkAuthorization,
   userController.updateFCMToken
