@@ -18,7 +18,7 @@ const userSchema = new Schema({
   resetPasswordToken: { type: String, default: null },
   resetPasswordExpires: { type: Date, default: null },
   location: {type: { type: String, default: "Point" }, coordinates: { type: [Number], default: [0, 0] },},
-  fcm_token: [{ type: String }],
+  fcmToken: [{ type: String }],
 });
 
 const User = mongoose.model("User", userSchema);
