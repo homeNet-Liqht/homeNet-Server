@@ -75,14 +75,16 @@ const notificationController = {
 
   show: async (req, res) => {
     try {
-      const notifications = notification.find({
+
+      const notifications = await notification.find({
         receiver_id: { $in: [req.idDecoded] },
       });
+
       if (!notifications || notifications.length === 0)
         return res
           .status(404)
           .json({ code: 404, data: "There are no notifications to show" });
-      return res.status(200).json({code: 200, data: notifications})
+      return res.status(200).json({ code: 200, data: notifications });
     } catch (error) {}
   },
 };
