@@ -37,6 +37,7 @@ const notificationController = {
       for (const assigneeId of receivers) {
         const assignee = await User.findById(assigneeId);
         if (assignee && assignee.fcm_token && assignee.fcm_token.length > 0) {
+          if (assignee._id == req.idDecoded) continue
           for (const token of assignee.fcm_token) {
             const sendingMessage = notificationContain(
               req.body.type,
@@ -75,7 +76,6 @@ const notificationController = {
 
   show: async (req, res) => {
     try {
-
       const notifications = await notification.find({
         receiver_id: { $in: [req.idDecoded] },
       });

@@ -10,7 +10,6 @@ taskRoute.get("/current-user-tasks", taskController.currentUserTask);
 taskRoute.get("/single/:tid", taskController.getTask);
 taskRoute.get("/tasks", taskController.getTasks);
 taskRoute.post(
-
   "/user-tasks-in-day",
   taskController.getTasksInDayWithCurrentUser
 );
@@ -29,4 +28,5 @@ taskRoute.post(
 );
 taskRoute.put("/edit/:uid/:tid", checkAuthorization, taskController.edit);
 taskRoute.delete("/del/:uid/:tid", checkAuthorization, taskController.delete);
+taskRoute.put("/finish/:tid", taskController.finish)
 module.exports = taskRoute;

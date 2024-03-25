@@ -9,32 +9,35 @@ const familyGroup = require("../models/familyGroup");
 const taskController = {
   getTasksInDay: async (req, res) => {
     try {
-        const { day } = req.body;
-        const group = await familyGroup.findOne({
-            members: { $in: [req.idDecoded] },
-        });
-        const memberTask = await Promise.all(group.members.map(async (member) => {
-            return await task.find({
-                startTime: {
-                    $gte: new Date(`${day}T00:00:00`),
-                    $lt: new Date(`${day}T23:59:59`),
-                },
-                assignees: {$in: [member._id]}
-            });
-        }));
+      const { day } = req.body;
+      const group = await familyGroup.findOne({
+        members: { $in: [req.idDecoded] },
+      });
+      const memberTask = await Promise.all(
+        group.members.map(async (member) => {
+          return await task.find({
+            startTime: {
+              $gte: new Date(`${day}T00:00:00`),
+              $lt: new Date(`${day}T23:59:59`),
+            },
+            assignees: { $in: [member._id] },
+          });
+        })
+      );
 
-        const tasksInDay = memberTask.flat();
+      const tasksInDay = memberTask.flat();
 
-        if (tasksInDay.length === 0) {
-            return res.status(404).json({ code: 404, data: "No task on that day!" });
-        }
+      if (tasksInDay.length === 0) {
+        return res
+          .status(404)
+          .json({ code: 404, data: "No task on that day!" });
+      }
 
-        return res.status(200).json({ code: 200, data: tasksInDay });
+      return res.status(200).json({ code: 200, data: tasksInDay });
     } catch (error) {
-        return res.status(500).json({ code: 500, data: error.message });
+      return res.status(500).json({ code: 500, data: error.message });
     }
-},
-
+  },
 
   getTasksInDayWithCurrentUser: async (req, res) => {
     try {
@@ -370,6 +373,26 @@ const taskController = {
 
       console.log(downloadURLs);
       return res.status(201).json({ code: 201, data: downloadURLs });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+
+  finish: async (req, res) => {
+    try {
+      const currentTask = await task.findOne(
+        { _id: req.params.tid, assignees: req.idDecoded }
+      );
+      if (!currentTask) {
+        return res
+          .status(400)
+          .json({ code: 400, data: "You're not an assignee of this task" });
+      }
+  
+      currentTask.status = "finished";
+      await currentTask.save();
+  
+      return res.status(200).json({ code: 200, data: currentTask });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
