@@ -2,6 +2,7 @@ const Task = require("../models/task");
 const User = require("../models/user");
 const notificationContain = require("../utils/notificationText");
 const sendNotification = require("../utils/sendingNoti");
+
 const alert = async () => {
   try {
     const currentDate = new Date();
@@ -26,49 +27,56 @@ const alert = async () => {
           },
         },
         {
-          status: { $in: ["pending"] },
+          status: { $in: ["pending", "time"] }, // Including "time" status tasks
         },
       ],
     });
-    if (!tasksInDay) return;
+
+    if (!tasksInDay || tasksInDay.length === 0) return;
+
     console.log(tasksInDay);
 
-    const updateTaskStatus = await Promise.all(tasksInDay.map(async (task) => {
-        const endTime = new Date(task.endTime);
-        console.log(endTime.getUTCHours());
+    for (const task of tasksInDay) {
+      const endTime = new Date(task.endTime);
+      console.log("endTime", endTime.getUTCHours());
 
+      if (
+        endTime.getUTCHours() > getDateInfo.hour ||
+        (endTime.getUTCHours() === getDateInfo.hour &&
+          endTime.getUTCMinutes() > getDateInfo.minute)
+      ) {
+        await Task.findByIdAndUpdate(task._id, {
+          $set: { status: "missing" },
+        });
+      }
 
-        if (endTime.getUTCHours() > getDateInfo.hour && endTime.getUTCMinutes() > getDateInfo.minute) {
-          await Task.findByIdAndUpdate(task._id, {
-            $set: { status: "missing" },
-          });
-        }
-        console.log("task time", endTime.getUTCHours(),  endTime.getUTCMinutes());
-        console.log("current time", getDateInfo.hour, getDateInfo.minute, getDateInfo.minute - 5 );
-        if (endTime.getUTCHours() == getDateInfo.hour && endTime.getUTCMinutes() >= getDateInfo.minute - 5) {
-          await Promise.all(task.assignees.map(async (assignee) => {
-            const user = await User.findById(assignee._id);
+      if (
+        task.status !== "time" &&
+        endTime.getUTCHours() === getDateInfo.hour &&
+        endTime.getUTCMinutes() >= getDateInfo.minute - 5
+      ) {
+        for (const assigneeId of task.assignees) {
+          const user = await User.findById(assigneeId);
 
-            if (user && user.fcmToken && user.fcmToken.length > 0) {
-              for (const token of user.fcmToken) {
-                const sendingMessage = notificationContain(
-                  "time",
-                  task.assigner,
-                  assignee.id,
-                  task.title
-                );
+          if (user && user.fcmToken && user.fcmToken.length > 0) {
+            for (const token of user.fcmToken) {
+              const sendingMessage = notificationContain(
+                "time",
+                task.assigner,
+                assigneeId,
+                task.title
+              );
 
-                await sendNotification.sendNotification(token, sendingMessage);
-              }
+              await sendNotification.sendNotification(token, sendingMessage);
             }
-
-            const statusUpdate = Task.findByIdAndUpdate(task._id, {$set :{status : "time"}})
-            console.log(statusUpdate);
-          }));
+          }
         }
-      }));
 
-    console.log(updateTaskStatus);
+        await Task.findByIdAndUpdate(task._id, {
+          $set: { status: "time" },
+        });
+      }
+    }
   } catch (error) {
     console.log(error);
   }

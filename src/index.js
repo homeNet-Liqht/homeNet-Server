@@ -34,11 +34,11 @@ app.use(
 
 route(app);
 
-setTimeout(() => {
-  notiAlert();
-}, 3000);
+setInterval(() => {
+  notificationAlert()
+}, 60000);
 
-const notiAlert = async () => {
+const notificationAlert = async () => {
   alert.alert();
 };
 
