@@ -1,6 +1,7 @@
 const Task = require("../models/task");
 const User = require("../models/user");
-
+const notificationContain = require("../utils/notificationText");
+const sendNotification = require("../utils/sendingNoti");
 const alert = async () => {
   try {
     const currentDate = new Date();
@@ -25,7 +26,7 @@ const alert = async () => {
           },
         },
         {
-          status: { $in: ["accepting", "pending"] },
+          status: { $in: ["pending"] },
         },
       ],
     });
@@ -44,9 +45,10 @@ const alert = async () => {
         }
         console.log("task time", endTime.getUTCHours(),  endTime.getUTCMinutes());
         console.log("current time", getDateInfo.hour, getDateInfo.minute, getDateInfo.minute - 5 );
-        if (endTime.getUTCHours() == getDateInfo.hour && endTime.getUTCMinutes() > getDateInfo.minute - 5) {
+        if (endTime.getUTCHours() == getDateInfo.hour && endTime.getUTCMinutes() >= getDateInfo.minute - 5) {
           await Promise.all(task.assignees.map(async (assignee) => {
             const user = await User.findById(assignee._id);
+
             if (user && user.fcmToken && user.fcmToken.length > 0) {
               for (const token of user.fcmToken) {
                 const sendingMessage = notificationContain(
@@ -55,9 +57,13 @@ const alert = async () => {
                   assignee.id,
                   task.title
                 );
-                await sendNotification(token, sendingMessage);
+
+                await sendNotification.sendNotification(token, sendingMessage);
               }
             }
+
+            const statusUpdate = Task.findByIdAndUpdate(task._id, {$set :{status : "time"}})
+            console.log(statusUpdate);
           }));
         }
       }));
