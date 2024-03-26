@@ -15,7 +15,7 @@ const notificationController = {
           members: { $in: receivers },
         });
         if (receiver && receiver.length > 0) {
-          return res.status(40).json({
+          return res.status(401).json({
             code: 401,
             data: "There is at least one person who has joined a family",
           });
@@ -33,11 +33,11 @@ const notificationController = {
         const taskObj = await Task.findById(req.body.task_id);
         taskTitle = taskObj ? taskObj.title : "";
       }
-
       for (const assigneeId of receivers) {
         const assignee = await User.findById(assigneeId);
-        if (assignee && assignee.fcm_token && assignee.fcm_token.length > 0) {
-          for (const token of assignee.fcm_token) {
+        if (assignee && assignee.fcmToken && assignee.fcmToken.length > 0) {
+          if (assignee._id == req.idDecoded) continue
+          for (const token of assignee.fcmToken) {
             const sendingMessage = notificationContain(
               req.body.type,
               sender.name,
@@ -51,7 +51,7 @@ const notificationController = {
               sender_id: req.idDecoded,
               receiver_id: req.body.receivers,
               type: req.body.type,
-              message: sendingMessage,
+              message: `${sendingMessage.title}: ${sendingMessage.body}`,
             });
             if (!newNotification) {
               return res.status(400).json({
@@ -75,14 +75,15 @@ const notificationController = {
 
   show: async (req, res) => {
     try {
-      const notifications = notification.find({
+      const notifications = await notification.find({
         receiver_id: { $in: [req.idDecoded] },
       });
+
       if (!notifications || notifications.length === 0)
         return res
           .status(404)
           .json({ code: 404, data: "There are no notifications to show" });
-      return res.status(200).json({code: 200, data: notifications})
+      return res.status(200).json({ code: 200, data: notifications });
     } catch (error) {}
   },
 };

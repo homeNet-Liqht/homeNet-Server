@@ -5,21 +5,35 @@ const {
 } = require("../helpers/inGroup");
 const task = require("../models/task");
 const User = require("../models/user");
+const familyGroup = require("../models/familyGroup");
 const taskController = {
   getTasksInDay: async (req, res) => {
     try {
       const { day } = req.body;
-      const taskInDay = await task.find({
-        startTime: {
-          $gte: new Date(`${day}T00:00:00`),
-          $lt: new Date(`${day}T23:59:59`),
-        },
+      const group = await familyGroup.findOne({
+        members: { $in: [req.idDecoded] },
       });
-      if (!taskInDay)
+      const memberTask = await Promise.all(
+        group.members.map(async (member) => {
+          return await task.find({
+            startTime: {
+              $gte: new Date(`${day}T00:00:00`),
+              $lt: new Date(`${day}T23:59:59`),
+            },
+            assignees: { $in: [member._id] },
+          });
+        })
+      );
+
+      const tasksInDay = memberTask.flat();
+
+      if (tasksInDay.length === 0) {
         return res
           .status(404)
           .json({ code: 404, data: "No task on that day!" });
-      return res.status(200).json({ code: 200, data: taskInDay });
+      }
+
+      return res.status(200).json({ code: 200, data: tasksInDay });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
@@ -36,13 +50,16 @@ const taskController = {
         $or: [{ assigner: req.idDecoded }, { assignees: req.idDecoded }],
       });
       if (!taskInDay)
-        return res.status(404).json({ code: 404, data: "No task on that day!" });
+        return res
+          .status(404)
+          .json({ code: 404, data: "No task on that day!" });
 
       return res.status(200).json({ code: 200, data: taskInDay });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+
   getTask: async (req, res) => {
     try {
       const foundTask = await task.findById(req.params.tid);
@@ -87,10 +104,34 @@ const taskController = {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+
   getTaskById: async (req, res) => {
     try {
+      const getType = req.body.type;
+
+      let query;
+
+      if (getType === "past") {
+        const yesterday = new Date();
+        yesterday.setUTCHours(0, 0, 0, 0); 
+        yesterday.setDate(yesterday.getUTCDate() - 1); 
+        query = { endTime: { $lt: yesterday } }; 
+      }
+      if (getType === "present") {
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0); 
+        const endOfToday = new Date(today);
+        endOfToday.setUTCDate(endOfToday.getUTCDate() + 1); 
+        query = { startTime: { $gte: today, $lt: endOfToday } }; 
+      }
+      if (getType === "future") {
+        const tomorrow = new Date();
+        tomorrow.setUTCHours(0, 0, 0, 0);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+        query = { startTime: { $gte: tomorrow } }; 
+      }
       const getTask = await task
-        .find({ assignees: { $in: [req.params.uid] } })
+        .find({ assignees: { $in: [req.params.uid] }, ...query })
         .sort({ startTime: -1 });
       if (!getTask)
         return res
@@ -101,6 +142,7 @@ const taskController = {
       return res.status(500).json({ code: 500, data: error });
     }
   },
+
   currentUserTask: async (req, res) => {
     try {
       const getTask = await task
@@ -117,9 +159,6 @@ const taskController = {
   },
   getTasks: async (req, res) => {
     try {
-      let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
-      const limit = 3;
-
       const query = {
         $or: [
           { assignees: { $in: [req.idDecoded] } },
@@ -127,27 +166,12 @@ const taskController = {
         ],
       };
 
-      const totalTasks = await task.countDocuments(query);
-
-      if (lastDataIndex >= totalTasks) {
-        return res.status(200).json({
-          code: 200,
-          data: [],
-          message: "No more data available",
-        });
-      }
-
-      const remainingTasks = totalTasks - lastDataIndex;
-      console.log(remainingTasks);
-      const fetchLimit = Math.min(limit, remainingTasks);
-      console.log(fetchLimit);
       const tasks = await task
         .find(query)
         .sort({ startTime: -1 })
         .populate("assigner", "_id name photo")
-        .populate("assignees", "_id name photo")
-        .skip(lastDataIndex)
-        .limit(fetchLimit);
+        .populate("assignees", "_id name photo");
+
       tasks.map((task) => console.log(task.title));
       if (!tasks || tasks.length === 0) {
         return res.status(404).json({
@@ -157,12 +181,9 @@ const taskController = {
         });
       }
 
-      lastDataIndex += limit;
-
       return res.status(200).json({
         code: 200,
         data: tasks,
-        lastDataIndex,
       });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
@@ -357,6 +378,27 @@ const taskController = {
 
       console.log(downloadURLs);
       return res.status(201).json({ code: 201, data: downloadURLs });
+    } catch (error) {
+      return res.status(500).json({ code: 500, data: error.message });
+    }
+  },
+
+  finish: async (req, res) => {
+    try {
+      const currentTask = await task.findOne({
+        _id: req.params.tid,
+        assignees: req.idDecoded,
+      });
+      if (!currentTask) {
+        return res
+          .status(400)
+          .json({ code: 400, data: "You're not an assignee of this task" });
+      }
+
+      currentTask.status = "finished";
+      await currentTask.save();
+
+      return res.status(200).json({ code: 200, data: currentTask });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
     }
