@@ -6,7 +6,7 @@ const { checkAuthorization } = require("../middlewares/checkAuthor");
 const taskRoute = express.Router();
 
 taskRoute.post("/user-task/:uid", taskController.getTaskById);
-taskRoute.post("/current-user-tasks/", taskController.currentUserTask);
+taskRoute.get("/current-user-tasks/", taskController.currentUserTask);
 taskRoute.get("/single/:tid", taskController.getTask);
 taskRoute.get("/tasks", taskController.getTasks);
 taskRoute.post(
