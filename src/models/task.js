@@ -15,6 +15,7 @@ const taskSchema = new Schema({
   photo: [{ type: String }],
   created_at: {type: Date,default: Date.now,},
   updated_at: {type: Date,default: Date.now,},
+  day: {enum : ["today", "yesterday", "tomorrow"]}
 });
 
 
