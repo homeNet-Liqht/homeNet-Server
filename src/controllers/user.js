@@ -171,7 +171,7 @@ const userController = {
       if (!updateUser) {
         return res.status(404).json({ code: 404, data: "User not found" });
       }
-      
+      console.log(updateUser.fcmToken);
       return res.status(200).json(updateUser.fcmToken);
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });

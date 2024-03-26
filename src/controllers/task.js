@@ -133,8 +133,6 @@ const taskController = {
   },
   getTasks: async (req, res) => {
     try {
-      let lastDataIndex = parseInt(req.query.lastDataIndex) || 0;
-      const limit = 3;
 
       const query = {
         $or: [
@@ -143,27 +141,16 @@ const taskController = {
         ],
       };
 
-      const totalTasks = await task.countDocuments(query);
 
-      if (lastDataIndex >= totalTasks) {
-        return res.status(200).json({
-          code: 200,
-          data: [],
-          message: "No more data available",
-        });
-      }
 
-      const remainingTasks = totalTasks - lastDataIndex;
-      console.log(remainingTasks);
-      const fetchLimit = Math.min(limit, remainingTasks);
-      console.log(fetchLimit);
+
+  
       const tasks = await task
         .find(query)
         .sort({ startTime: -1 })
         .populate("assigner", "_id name photo")
         .populate("assignees", "_id name photo")
-        .skip(lastDataIndex)
-        .limit(fetchLimit);
+ 
       tasks.map((task) => console.log(task.title));
       if (!tasks || tasks.length === 0) {
         return res.status(404).json({
@@ -173,12 +160,10 @@ const taskController = {
         });
       }
 
-      lastDataIndex += limit;
 
       return res.status(200).json({
         code: 200,
         data: tasks,
-        lastDataIndex,
       });
     } catch (error) {
       return res.status(500).json({ code: 500, data: error.message });
