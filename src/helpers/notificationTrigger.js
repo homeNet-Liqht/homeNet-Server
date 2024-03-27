@@ -39,7 +39,7 @@ const alert = async () => {
     for (const task of tasksInDay) {
       const endTime = new Date(task.endTime);
       console.log("endTime", endTime.getUTCHours());
-
+      
       if (
         endTime.getUTCHours() > getDateInfo.hour ||
         (endTime.getUTCHours() === getDateInfo.hour &&
