@@ -37,7 +37,7 @@ route(app);
 setTimeout(() => {
   notificationAlert()
 }, 3000);
-
+  
 const notificationAlert = async () => {
   alert.alert();
 };
