@@ -97,7 +97,7 @@ const familyGroupControllers = {
 
       return res.status(200).json({
         code: 200,
-        data: `${user.name} is being a part of ${group.familyName}`,
+        data: group,
       });
     } catch (error) {
       res.status(500).json({ code: 500, data: "Server error" });

@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const notificationSchema = new Schema({
   sender_id: {type: Schema.Types.ObjectId,ref: "User",},
   receiver_id: [{type: Schema.Types.ObjectId,ref: "User",},],
-  task_id: { type: Schema.Types.ObjectId },
+  task_id: { type: Schema.Types.ObjectId, ref:"Task" },
   type: {type: String,enum: [ "invite", "join", "time", "location", "task", "accept", "finish", "update", "delete"],},
   message: {type: String,},
 });

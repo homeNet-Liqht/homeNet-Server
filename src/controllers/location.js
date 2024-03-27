@@ -42,7 +42,7 @@ const locationController = {
     try {
       const familyGroups = await familyGroup
         .find({ members: { $in: [req.idDecoded] } })
-        .populate("members", "name location");
+        .populate("members", "_id name location photo");
 
       if (!familyGroups || familyGroups.length === 0)
         return res
@@ -65,6 +65,9 @@ const locationController = {
       return res.status(500).json({ code: 500, data: error.message });
     }
   },
+
+
+
   createNewZone: async (req, res) => {
     try {
       const getFamily = await familyGroup.findOne({

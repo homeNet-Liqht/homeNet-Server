@@ -27,7 +27,7 @@ const alert = async () => {
           },
         },
         {
-          status: { $in: ["pending", "time"] }, // Including "time" status tasks
+          status: { $in: ["pending", "time"] },
         },
       ],
     });
@@ -38,10 +38,11 @@ const alert = async () => {
 
     for (const task of tasksInDay) {
       const endTime = new Date(task.endTime);
-      console.log("endTime", endTime.getUTCHours());
+      console.log("hour", endTime.getUTCHours(), getDateInfo.hour);
+      console.log("minute", endTime.getUTCMinutes(), getDateInfo.minute);
 
       if (
-        endTime.getUTCHours() > getDateInfo.hour ||
+        getDateInfo.hour > endTime.getHours() ||
         (endTime.getUTCHours() === getDateInfo.hour &&
           endTime.getUTCMinutes() > getDateInfo.minute)
       ) {

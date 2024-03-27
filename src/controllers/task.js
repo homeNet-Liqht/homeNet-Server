@@ -255,7 +255,7 @@ const taskController = {
       if (newTask) {
         return res
           .status(200)
-          .json({ code: 200, data: "Created task successfully" });
+          .json({ code: 200, data: "Created task successfully", _id: newTask._id });
       }
     } catch (error) {
       console.error("An error occurred:", error.message);

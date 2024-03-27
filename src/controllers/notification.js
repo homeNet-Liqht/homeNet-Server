@@ -52,6 +52,7 @@ const notificationController = {
               receiver_id: req.body.receivers,
               type: req.body.type,
               message: `${sendingMessage.title}: ${sendingMessage.body}`,
+              task_id: req.body.task_id || null
             });
             if (!newNotification) {
               return res.status(400).json({
@@ -77,14 +78,16 @@ const notificationController = {
     try {
       const notifications = await notification.find({
         receiver_id: { $in: [req.idDecoded] },
-      });
+      }).populate("sender_id", "photo name");
 
       if (!notifications || notifications.length === 0)
         return res
           .status(404)
           .json({ code: 404, data: "There are no notifications to show" });
       return res.status(200).json({ code: 200, data: notifications });
-    } catch (error) {}
+    } catch (error) {
+      return res.status(500).json({code: 500, data: error})
+    }
   },
 };
 
