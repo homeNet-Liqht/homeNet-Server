@@ -5,6 +5,7 @@ const { otpGenerated } = require("../utils/otp");
 const helpers = require("../helpers/jwt");
 const Email = require("../helpers/email");
 
+
 const authController = {
   signUp: async (req, res) => {
     try {
@@ -13,8 +14,8 @@ const authController = {
       });
 
       if (isExistingEmail)
-        return res.status(403).json({
-          code: 403,
+        return res.status(400).json({
+          code: 400,
           data: "This email is already signed up",
         });
 
@@ -159,7 +160,6 @@ const authController = {
           ...others
         } = user._doc;
 
-        io.emit('connect', { userId: user._id, email: user.email });
 
         return res.status(200).json({
           code: 200,
@@ -216,7 +216,7 @@ const authController = {
           if (err) console.log(err);
           const userDb = await User.findById(user.id);
           if (!userDb) {
-            return res.status(401).json({ code: 401, data: "User not found" });
+            return res.status(404).json({ code: 404, data: "User not found" });
           }
           const newAccessToken = helpers.generateAccessToken(userDb);
           const newRefreshToken = await helpers.generateRefreshToken(userDb);

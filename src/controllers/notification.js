@@ -4,6 +4,7 @@ const Task = require("../models/task");
 const FamilyGroup = require("../models/familyGroup");
 const { sendNotification } = require("../utils/sendingNoti");
 const notificationContain = require("../utils/notificationText");
+const notification = require("../models/notification");
 const notificationController = {
   sending: async (req, res) => {
     try {
@@ -21,34 +22,6 @@ const notificationController = {
         }
       }
 
-      if (
-        req.body.type === "task" ||
-        req.body.type === "update" ||
-        req.body.type === "finish" ||
-        req.body.type === "delete"
-      ) {
-        const isAssigner = await Task.findById(req.body.task_id);
-
-        if (!isAssigner || isAssigner.assigner != req.idDecoded) {
-          return res.status(401).json({
-            code: 401,
-            data: "Sender isn't the assigner of this task",
-          });
-        }
-
-        const isInTask = await Task.findOne({
-          _id: req.body.task_id,
-          assignees: { $in: receivers },
-        });
-
-        if (!isInTask) {
-          return res.status(404).json({
-            code: 404,
-            data: "There is someone who isn't in this task",
-          });
-        }
-      }
-
       let taskTitle = "";
       if (
         req.body.type === "task" ||
@@ -60,11 +33,10 @@ const notificationController = {
         const taskObj = await Task.findById(req.body.task_id);
         taskTitle = taskObj ? taskObj.title : "";
       }
-
-      console.log("Send FCM Token");
       for (const assigneeId of receivers) {
         const assignee = await User.findById(assigneeId);
         if (assignee && assignee.fcmToken && assignee.fcmToken.length > 0) {
+          if (assignee._id == req.idDecoded) continue
           for (const token of assignee.fcmToken) {
             const sendingMessage = notificationContain(
               req.body.type,
@@ -73,23 +45,23 @@ const notificationController = {
               taskTitle
             );
             await sendNotification(token, sendingMessage);
+            console.log("Send FCM Token success");
+
+            const newNotification = await Notification.create({
+              sender_id: req.idDecoded,
+              receiver_id: req.body.receivers,
+              type: req.body.type,
+              message: `${sendingMessage.title}: ${sendingMessage.body}`,
+              task_id: req.body.task_id || null
+            });
+            if (!newNotification) {
+              return res.status(400).json({
+                code: 400,
+                data: "Something went wrong, try again later!",
+              });
+            }
           }
         }
-      }
-      console.log("Send FCM Token success");
-
-      const newNotification = await Notification.create({
-        sender_id: req.idDecoded,
-        receiver_id: req.body.receivers,
-        type: req.body.type,
-        message: JSON.stringify(sendingMessage),
-      });
-
-      if (!newNotification) {
-        return res.status(400).json({
-          code: 400,
-          data: "Something went wrong, try again later!",
-        });
       }
 
       return res.status(201).json({
@@ -102,76 +74,19 @@ const notificationController = {
     }
   },
 
-  alert: async () => {
+  show: async (req, res) => {
     try {
-      const currentDate = new Date();
-      const getDateInfo = {
-        year: currentDate.getUTCFullYear(),
-        month: currentDate.getUTCMonth() + 1,
-        day: currentDate.getUTCDate(),
-        time: currentDate.getUTCHours(),
-        minute: currentDate.getUTCMinutes(),
-      };
-      
-      console.log(getDateInfo);
-      const tasksInDay = await Task.find({
-        $expr: {
-          $and: [
-            { $eq: [{ $year: "$endTime" }, getDateInfo.year] },
-            { $eq: [{ $month: "$endTime" }, getDateInfo.month] },
-            { $eq: [{ $dayOfMonth: "$endTime" }, getDateInfo.day] },
-          ],
-        },
-      });
+      const notifications = await notification.find({
+        receiver_id: { $in: [req.idDecoded] },
+      }).populate("sender_id", "photo name");
 
-      if (!tasksInDay) return;
-
-      const filteredTasks = tasksInDay.filter((task) => {
-        const endTime = new Date(task.endTime);
-        return (
-          (endTime.getHours() > getDateInfo.time ||
-            (endTime.getHours() === getDateInfo.time &&
-              endTime.getMinutes() > getDateInfo.minute)) &&
-          task.status === "pending" &&
-          task.status === "accepting"
-        );
-      });
-      console.log(filteredTasks);
-      const updateTaskStatus = filteredTasks.map(async (task) => {
-        if (task.endTime > Date.now()) {
-          await Task.findByIdAndUpdate(task._id, {
-            $set: { status: "missing" },
-          });
-        }
-
-        if (task.endTime > Date.now() - 5) {
-          task.assignees.map(async (assignee) => {
-            const assignees = await User.findById(assignee._id);
-            assignees.map(async (assignee) => {
-              if (
-                assignee &&
-                assignee.fcmToken &&
-                assignee.fcmToken.length > 0
-              ) {
-                for (const token of assignee.fcmToken) {
-                  const sendingMessage = notificationContain(
-                    "time",
-                    task.assigner,
-                    assignee.id,
-                    task.title
-                  );
-
-                  await sendNotification(token, sendingMessage);
-                }
-              }
-            });
-          });
-        }
-      });
-
-      console.log(updateTaskStatus);
+      if (!notifications || notifications.length === 0)
+        return res
+          .status(404)
+          .json({ code: 404, data: "There are no notifications to show" });
+      return res.status(200).json({ code: 200, data: notifications });
     } catch (error) {
-      console.log(error);
+      return res.status(500).json({code: 500, data: error})
     }
   },
 };

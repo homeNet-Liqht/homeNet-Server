@@ -5,8 +5,10 @@ const locationRoute = require("./locationRoute");
 const notificationRoute = require("./notificationRoute");
 const taskRoute = require("./taskRoute");
 const userRoute = require("./userRoute");
+const zoneRoute = require("./zoneRoute");
 
 const route = (app) => {
+  app.use("/zone", checkAuthentication, zoneRoute);
   app.use("/location", checkAuthentication, locationRoute);
   app.use("/notification", checkAuthentication, notificationRoute);
   app.use("/auth", authRoute);

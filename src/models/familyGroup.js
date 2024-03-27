@@ -7,19 +7,12 @@ const familyGroupSchema = new Schema({
     type: String,
     require: [true, "Family Name is a required field"],
   },
-  photo: {
-    type: String,
-  },
+  photo: { type: String },
   host: { type: Schema.Types.ObjectId, ref: "User" },
   members: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
+  zones: [{ type: Schema.Types.ObjectId, ref: "Zone" }],
+  created_at: { type: Date, default: Date.now },
+  dated_at: { type: Date, default: Date.now },
 });
 
 const familyGroup = mongoose.model("FamilyGroup", familyGroupSchema);

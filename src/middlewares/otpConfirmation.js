@@ -13,15 +13,15 @@ const otpConfirmation = async (req, res, next) => {
     const clientOtp = req.body.otp;
 
     if (user.otp_exp < Date.now()) {
-      return res.status(403).json({
-        code: 403,
+      return res.status(400).json({
+        code: 400,
         data: "Your token is expired",
       });
     }
 
     if (user.otp !== clientOtp) {
-      return res.status(403).json({
-        code: 403,
+      return res.status(404).json({
+        code: 404,
         data: "This OTP is not right, try again!",
       });
     }
