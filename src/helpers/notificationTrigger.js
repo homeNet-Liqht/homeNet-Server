@@ -61,14 +61,19 @@ const alert = async () => {
 
           if (user && user.fcmToken && user.fcmToken.length > 0) {
             for (const token of user.fcmToken) {
-              const sendingMessage = notificationContain(
-                "time",
-                task.assigner,
-                assigneeId,
-                task.title
-              );
+              try {
+                const sendingMessage = notificationContain(
+                  "time",
+                  task.assigner,
+                  assigneeId,
+                  task.title
+                );
 
-              await sendNotification.sendNotification(token, sendingMessage);
+                await sendNotification.sendNotification(token, sendingMessage);
+              } catch (sendError) {
+                console.error("Error sending notification:", sendError);
+                // Handle the error appropriately, e.g., mark token as invalid
+              }
             }
           }
         }
@@ -82,5 +87,6 @@ const alert = async () => {
     console.log(error);
   }
 };
+
 
 module.exports = { alert };
