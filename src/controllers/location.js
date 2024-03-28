@@ -56,6 +56,7 @@ const locationController = {
             memberId: member._id,
             memberName: member.name,
             location: member.location,
+            photo: member.photo
           });
         });
       });
