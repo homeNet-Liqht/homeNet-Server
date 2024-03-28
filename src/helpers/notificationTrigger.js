@@ -72,7 +72,6 @@ const alert = async () => {
                 await sendNotification.sendNotification(token, sendingMessage);
               } catch (sendError) {
                 console.error("Error sending notification:", sendError);
-                // Handle the error appropriately, e.g., mark token as invalid
               }
             }
           }
