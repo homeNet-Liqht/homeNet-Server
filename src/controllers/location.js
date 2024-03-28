@@ -52,12 +52,15 @@ const locationController = {
       const memberLocations = [];
       familyGroups.forEach((group) => {
         group.members.forEach((member) => {
-          memberLocations.push({
-            _id: member._id,
-            memberName: member.name,
-            location: member.location,
-            photo: member.photo
-          });
+          if (member._id != req.idDecoded) {
+            memberLocations.push({
+              _id: member._id,
+              memberName: member.name,
+              location: member.location,
+              photo: member.photo
+            });
+          }
+         
         });
       });
 
