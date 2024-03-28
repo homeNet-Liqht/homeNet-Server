@@ -53,7 +53,7 @@ const locationController = {
       familyGroups.forEach((group) => {
         group.members.forEach((member) => {
           memberLocations.push({
-            memberId: member._id,
+            _id: member._id,
             memberName: member.name,
             location: member.location,
             photo: member.photo
