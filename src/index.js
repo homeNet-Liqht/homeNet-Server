@@ -36,7 +36,7 @@ route(app);
 
 setInterval(() => {
   notificationAlert()
-}, 30000);
+}, 3000);
   
 const notificationAlert = async () => {
   alert.alert();

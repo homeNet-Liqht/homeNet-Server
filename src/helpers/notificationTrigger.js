@@ -38,27 +38,36 @@ const alert = async () => {
 
     for (const task of tasksInDay) {
       const endTime = new Date(task.endTime);
-      console.log("hour", endTime.getUTCHours(), getDateInfo.hour);
-      console.log("minute", endTime.getUTCMinutes(), getDateInfo.minute);
+      console.log(
+        "hour database, realtime",
+        endTime.getUTCHours(),
+        getDateInfo.hour
+      );
+      console.log(
+        "minute database, realtime",
+        endTime.getUTCMinutes(),
+        getDateInfo.minute
+      );
 
       if (
         getDateInfo.hour > endTime.getHours() ||
         (endTime.getUTCHours() === getDateInfo.hour &&
-          endTime.getUTCMinutes() > getDateInfo.minute)
+          getDateInfo.minute > endTime.getUTCMinutes())
       ) {
         await Task.findByIdAndUpdate(task._id, {
           $set: { status: "missing" },
         });
       }
-
+      const endTimeInfoFormat = getDateInfo.minute = 0 ? 60 : getDateInfo.minute;
+      console.log(endTimeInfoFormat);
       if (
         task.status !== "time" &&
         endTime.getUTCHours() === getDateInfo.hour &&
-        endTime.getUTCMinutes() >= getDateInfo.minute - 5
+        endTimeInfoFormat - 5 >= endTime.getUTCMinutes()
       ) {
+        console.log("a");
         for (const assigneeId of task.assignees) {
           const user = await User.findById(assigneeId);
-
           if (user && user.fcmToken && user.fcmToken.length > 0) {
             for (const token of user.fcmToken) {
               try {
@@ -77,15 +86,15 @@ const alert = async () => {
           }
         }
 
-        await Task.findByIdAndUpdate(task._id, {
+        const updatedTask = await Task.findByIdAndUpdate(task._id, {
           $set: { status: "time" },
         });
+        console.log(updatedTask);
       }
     }
   } catch (error) {
     console.log(error);
   }
 };
-
 
 module.exports = { alert };
