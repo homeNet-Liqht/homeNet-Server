@@ -34,7 +34,7 @@ app.use(
 
 route(app);
 
-setTimeout(() => {
+setInterval(() => {
   notificationAlert()
 }, 3000);
   
