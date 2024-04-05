@@ -34,9 +34,9 @@ app.use(
 
 route(app);
 
-setTimeout(() => {
+setInterval(() => {
   notificationAlert()
-}, 3000);
+}, 60000);
   
 const notificationAlert = async () => {
   alert.alert();
